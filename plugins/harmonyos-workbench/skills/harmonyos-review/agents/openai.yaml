@@ -1,0 +1,4 @@
+interface:
+  display_name: "HarmonyOS Review"
+  short_description: "基于代码、截图和固定目标证据审查 HarmonyOS 产品体验"
+  default_prompt: "Use $harmonyos-review to audit this HarmonyOS product with evidence."

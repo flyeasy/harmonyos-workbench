@@ -1,0 +1,4 @@
+interface:
+  display_name: "HarmonyOS Design"
+  short_description: "建立 HarmonyOS 体验基线并实现多设备 ArkUI 界面"
+  default_prompt: "Use $harmonyos-design to design and implement this HarmonyOS interface."

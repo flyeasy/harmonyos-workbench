@@ -1,0 +1,4 @@
+interface:
+  display_name: "HarmonyOS Targets"
+  short_description: "按项目固定、租赁并验证 HarmonyOS 设备与模拟器目标"
+  default_prompt: "Use $harmonyos-targets to reserve and verify a stable target for this project."

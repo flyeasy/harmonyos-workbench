@@ -1,0 +1,4 @@
+interface:
+  display_name: "HarmonyOS Release"
+  short_description: "执行 HarmonyOS 签名校验与 AppGallery 发布门禁"
+  default_prompt: "Use $harmonyos-release to assess and prepare this HarmonyOS release."

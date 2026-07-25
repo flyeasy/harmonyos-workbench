@@ -1,0 +1,4 @@
+interface:
+  display_name: "HarmonyOS Build"
+  short_description: "构建、选择并校验 HarmonyOS HAP 与 APP 产物"
+  default_prompt: "Use $harmonyos-build to build and verify the requested HarmonyOS artifact."

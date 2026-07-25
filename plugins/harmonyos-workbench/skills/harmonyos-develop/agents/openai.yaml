@@ -1,0 +1,4 @@
+interface:
+  display_name: "HarmonyOS Develop"
+  short_description: "实现并验证 HarmonyOS ArkTS 功能、架构与平台能力"
+  default_prompt: "Use $harmonyos-develop to implement and verify this HarmonyOS feature."

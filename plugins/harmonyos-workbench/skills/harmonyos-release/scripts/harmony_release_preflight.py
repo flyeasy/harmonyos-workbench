@@ -1,0 +1,189 @@
+#!/usr/bin/env python3
+"""Read-only HarmonyOS release preflight and APP signature verification."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+import sys
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
+
+from harmony_common.artifacts import (  # noqa: E402
+    app_metadata,
+    artifact_candidates,
+    sha256_file,
+)
+from harmony_common.discovery import (  # noqa: E402
+    resolve_java,
+    resolve_sign_tool,
+    run,
+)
+from harmony_common.evidence import build_record, evidence_path, write_record  # noqa: E402
+from harmony_common.project import find_project_root, project_identity  # noqa: E402
+from harmony_common.profile import verify_artifact_profile  # noqa: E402
+
+
+PRIVATE_SUFFIXES = {".p12", ".jks", ".keystore", ".pem", ".key", ".p7b"}
+
+
+def latest_app(root: Path) -> Path | None:
+    apps = artifact_candidates(root, "app", "release")
+    return apps[0] if apps else None
+
+
+def tracked_files(root: Path) -> list[str]:
+    if not (root / ".git").exists() and not any((parent / ".git").exists() for parent in root.parents):
+        return []
+    result = run(["git", "ls-files"], cwd=root)
+    return [line.strip() for line in result.stdout.splitlines() if line.strip()] if result.returncode == 0 else []
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--project", default=".")
+    parser.add_argument("--artifact", default="")
+    parser.add_argument("--sdk-home", default="")
+    parser.add_argument("--sign-tool", default="")
+    parser.add_argument("--java", default="")
+    parser.add_argument("--expected-bundle", default="")
+    parser.add_argument("--expected-distribution", default="app_gallery")
+    parser.add_argument("--verify", action="store_true")
+    parser.add_argument("--strict", action="store_true")
+    parser.add_argument("--evidence", default="")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
+
+    try:
+        root = find_project_root(args.project)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+    identity = project_identity(root)
+    findings: list[dict[str, str]] = []
+
+    def finding(level: str, code: str, message: str) -> None:
+        findings.append({"level": level, "code": code, "message": message})
+
+    local_profile = root / "build-profile.json5"
+    template_profile = root / "build-profile.template.json5"
+    if not local_profile.exists():
+        finding("error", "local_build_profile_missing", "local build-profile.json5 is missing")
+    if not template_profile.exists():
+        finding("warning", "build_profile_template_missing", "repository build-profile template is missing")
+
+    tracked = tracked_files(root)
+    if "build-profile.json5" in tracked:
+        finding("error", "local_build_profile_tracked", "local build-profile.json5 is tracked")
+    private_tracked = [
+        item for item in tracked
+        if Path(item).suffix.lower() in PRIVATE_SUFFIXES or "/material/" in f"/{item}/" or item.startswith("material/")
+    ]
+    if private_tracked:
+        finding("error", "signing_material_tracked", f"{len(private_tracked)} private signing material path(s) are tracked")
+    certificates = [item for item in tracked if Path(item).suffix.lower() == ".cer"]
+    if certificates:
+        finding("warning", "certificate_tracked", f"{len(certificates)} certificate file(s) are tracked; confirm project policy")
+
+    git_status = run(["git", "status", "--porcelain"], cwd=root)
+    dirty_count = len([line for line in git_status.stdout.splitlines() if line.strip()]) if git_status.returncode == 0 else 0
+    if dirty_count:
+        finding("warning", "dirty_worktree", f"worktree contains {dirty_count} changed path(s)")
+
+    artifact = Path(args.artifact).expanduser().resolve() if args.artifact else latest_app(root)
+    artifact_info: dict[str, object] = {}
+    if artifact and artifact.is_file() and artifact.stat().st_size > 0:
+        artifact_info = {
+            "path": str(artifact),
+            "size": artifact.stat().st_size,
+            "sha256": sha256_file(artifact),
+            "signed_name": "signed" in artifact.name.lower(),
+        }
+        if artifact.suffix.lower() != ".app":
+            finding("error", "wrong_artifact_type", "final AppGallery candidate must be a .app package")
+        if "signed" not in artifact.name.lower():
+            finding("warning", "artifact_name_unsigned", "artifact name does not indicate a signed APP")
+    else:
+        finding("warning", "release_artifact_missing", "no non-empty release APP artifact was found")
+
+    metadata = app_metadata(root)
+    expected_bundle = args.expected_bundle or metadata.get("bundleName", "")
+    verification: dict[str, object] = {"status": "skipped"}
+    if args.verify:
+        if not artifact or not artifact.is_file():
+            finding("error", "verify_artifact_missing", "cannot verify a missing APP")
+        else:
+            sign_tool = resolve_sign_tool(args.sign_tool, args.sdk_home)
+            if not sign_tool:
+                finding("error", "sign_tool_missing", "hap-sign-tool.jar was not found")
+            else:
+                java = resolve_java(args.java)
+                if not java:
+                    finding("error", "java_missing", "a runnable Java executable was not found")
+                else:
+                    verification = verify_artifact_profile(
+                        artifact,
+                        sign_tool=sign_tool,
+                        java=java,
+                        expected_type="release",
+                        expected_bundle=expected_bundle,
+                        expected_distribution=args.expected_distribution,
+                        forbid_debug_info=True,
+                    )
+                    if verification.get("status") != "passed":
+                        finding("error", "signature_verification_failed", "; ".join(verification.get("errors", [])) or str(verification.get("message", "verification failed")))
+
+    errors = sum(item["level"] == "error" for item in findings)
+    warnings = sum(item["level"] == "warning" for item in findings)
+    payload = {
+        "status": "failed" if errors or (args.strict and warnings) else "passed",
+        "project": str(root),
+        "metadata": metadata,
+        "artifact": artifact_info,
+        "verification": verification,
+        "findings": findings,
+        "error_count": errors,
+        "warning_count": warnings,
+    }
+    if args.evidence:
+        evidence = Path(args.evidence).expanduser()
+        if not evidence.is_absolute():
+            evidence = root / evidence
+        record = build_record(
+            phase="release",
+            project_id=identity,
+            status=payload["status"],
+            inputs={
+                "artifact": evidence_path(artifact, root),
+                "verify": args.verify,
+                "strict": args.strict,
+                "expectedBundle": expected_bundle,
+                "expectedDistribution": args.expected_distribution,
+            },
+            outputs={
+                "metadata": metadata,
+                "artifact": {
+                    **artifact_info,
+                    "path": evidence_path(artifact, root),
+                }
+                if artifact_info
+                else {},
+                "verification": verification,
+            },
+            checks=[
+                {
+                    "name": item["code"],
+                    "status": "failed" if item["level"] == "error" else "needs_verification",
+                    "message": item["message"],
+                }
+                for item in findings
+            ],
+            next_phase="",
+        )
+        payload["evidence"] = str(write_record(evidence, record))
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return 1 if payload["status"] == "failed" else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

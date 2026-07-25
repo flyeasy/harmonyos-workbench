@@ -1,0 +1,4 @@
+interface:
+  display_name: "HarmonyOS Motion"
+  short_description: "命名、诊断并映射 HarmonyOS 动效与交互手感问题"
+  default_prompt: "Use $harmonyos-motion to name and diagnose this HarmonyOS motion behavior."

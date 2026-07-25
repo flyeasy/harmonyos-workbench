@@ -1,0 +1,4 @@
+interface:
+  display_name: "HarmonyOS Test"
+  short_description: "规划、执行并归一化 HarmonyOS 多层测试与项目证据"
+  default_prompt: "Use $harmonyos-test to run the narrowest reliable HarmonyOS verification."

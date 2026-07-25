@@ -1,0 +1,20 @@
+{
+  "name": "harmonyos-workbench",
+  "interface": {
+    "displayName": "HarmonyOS Workbench"
+  },
+  "plugins": [
+    {
+      "name": "harmonyos-workbench",
+      "source": {
+        "source": "local",
+        "path": "./plugins/harmonyos-workbench"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "developer-tools"
+    }
+  ]
+}

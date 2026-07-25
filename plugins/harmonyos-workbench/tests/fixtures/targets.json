@@ -1,0 +1,78 @@
+{
+  "emulators": [
+    {
+      "kind": "emulator",
+      "name": "phone-a",
+      "uuid": "11111111-1111-1111-1111-111111111111",
+      "device_type": "phone",
+      "device_model": "Pura",
+      "product_model": "Phone",
+      "running": true,
+      "api_version": "20",
+      "os_version": "6.0",
+      "cpu_arch": "arm64",
+      "hdc_port": "10001",
+      "single_screen": "1260x2720",
+      "runtime_screen": "1260x2720",
+      "instance_path": "/fixtures/phone-a",
+      "image_root": "/fixtures/images",
+      "image_subpath": "phone"
+    },
+    {
+      "kind": "emulator",
+      "name": "phone-b",
+      "uuid": "22222222-2222-2222-2222-222222222222",
+      "device_type": "phone",
+      "device_model": "Pura",
+      "product_model": "Phone",
+      "running": true,
+      "api_version": "20",
+      "os_version": "6.0",
+      "cpu_arch": "arm64",
+      "hdc_port": "10002",
+      "single_screen": "1260x2720",
+      "runtime_screen": "1260x2720",
+      "instance_path": "/fixtures/phone-b",
+      "image_root": "/fixtures/images",
+      "image_subpath": "phone"
+    },
+    {
+      "kind": "emulator",
+      "name": "tablet-a",
+      "uuid": "33333333-3333-3333-3333-333333333333",
+      "device_type": "tablet",
+      "device_model": "MatePad",
+      "product_model": "Tablet",
+      "running": true,
+      "api_version": "20",
+      "os_version": "6.0",
+      "cpu_arch": "arm64",
+      "hdc_port": "10003",
+      "single_screen": "2560x1600",
+      "runtime_screen": "2560x1600",
+      "instance_path": "/fixtures/tablet-a",
+      "image_root": "/fixtures/images",
+      "image_subpath": "tablet"
+    }
+  ],
+  "targets": [
+    {
+      "serial": "127.0.0.1:10001",
+      "transport": "TCP",
+      "status": "Connected",
+      "raw": "127.0.0.1:10001 TCP Connected"
+    },
+    {
+      "serial": "127.0.0.1:10002",
+      "transport": "TCP",
+      "status": "Connected",
+      "raw": "127.0.0.1:10002 TCP Connected"
+    },
+    {
+      "serial": "127.0.0.1:10003",
+      "transport": "TCP",
+      "status": "Connected",
+      "raw": "127.0.0.1:10003 TCP Connected"
+    }
+  ]
+}

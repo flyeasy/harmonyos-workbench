@@ -1,0 +1,4 @@
+interface:
+  display_name: "HarmonyOS Workbench"
+  short_description: "端到端编排 HarmonyOS 产品开发、验证与发布完整流程"
+  default_prompt: "Use $harmonyos-workbench to deliver this HarmonyOS task end to end with project-scoped evidence."
