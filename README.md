@@ -44,6 +44,35 @@ codex plugin marketplace add flyeasy/harmonyos-workbench@main
 codex plugin add harmonyos-workbench@harmonyos-workbench
 ```
 
+也可以从 [Skills Hub 上的 `@flyeasy`](https://skills-hub.ai/u/flyeasy) 安装公开的单文件便携版。只需要统一入口时：
+
+```bash
+npx @skills-hub-ai/cli install harmonyos-workbench --target codex
+```
+
+需要把九个阶段能力全部安装到本机时：
+
+```bash
+skills=(
+  harmonyos-workbench harmonyos-design harmonyos-develop
+  harmonyos-build harmonyos-targets harmonyos-test
+  harmonyos-review harmonyos-release harmonyos-motion
+)
+
+for skill in "${skills[@]}"; do
+  npx @skills-hub-ai/cli install "$skill" --target codex
+done
+```
+
+便携版条目：
+
+- [`harmonyos-workbench`](https://skills-hub.ai/skills/harmonyos-workbench)：端到端入口与阶段路由；
+- [`harmonyos-design`](https://skills-hub.ai/skills/harmonyos-design)、[`harmonyos-develop`](https://skills-hub.ai/skills/harmonyos-develop)、[`harmonyos-build`](https://skills-hub.ai/skills/harmonyos-build)；
+- [`harmonyos-targets`](https://skills-hub.ai/skills/harmonyos-targets)、[`harmonyos-test`](https://skills-hub.ai/skills/harmonyos-test)、[`harmonyos-review`](https://skills-hub.ai/skills/harmonyos-review)；
+- [`harmonyos-release`](https://skills-hub.ai/skills/harmonyos-release)、[`harmonyos-motion`](https://skills-hub.ai/skills/harmonyos-motion)。
+
+Skills Hub 便携版保留统一阶段契约、路由规则和安全边界，适合发现与单文件安装。完整 Codex 插件额外提供目标注册表、排他租约、HDC 端口分配、证据校验和辅助脚本；涉及多项目、多模拟器或可执行发布门禁时优先使用完整插件。
+
 安装后可从总入口开始：
 
 ```text
