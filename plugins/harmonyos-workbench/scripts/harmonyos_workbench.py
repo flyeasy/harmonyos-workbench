@@ -19,6 +19,8 @@ COMMANDS = {
     "test-run": PLUGIN_ROOT / "skills/harmonyos-test/scripts/run_test_command.py",
     "testing-inventory": PLUGIN_ROOT
     / "skills/harmonyos-test/scripts/deveco_task_inventory.py",
+    "integration-plan": PLUGIN_ROOT
+    / "skills/harmonyos-test/scripts/harmony_integration_plan.py",
     "release": PLUGIN_ROOT
     / "skills/harmonyos-release/scripts/harmony_release_preflight.py",
 }

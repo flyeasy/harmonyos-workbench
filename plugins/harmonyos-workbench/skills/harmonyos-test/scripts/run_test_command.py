@@ -71,6 +71,17 @@ def main() -> int:
     parser.add_argument("--role", default="primary")
     parser.add_argument("--state-file", default="")
     parser.add_argument("--ui", action="store_true")
+    parser.add_argument(
+        "--coordinate-ui",
+        action="store_true",
+        help="mark a UI run that uses screen coordinates; keeps the 10 minute geometry limit",
+    )
+    parser.add_argument(
+        "--preflight-max-age-seconds",
+        type=int,
+        default=1800,
+        help="maximum geometry-preflight age for semantic UI runs (60-3600 seconds)",
+    )
     parser.add_argument("--target-preflight-evidence", default="")
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
@@ -78,6 +89,10 @@ def main() -> int:
     command = args.command[1:] if args.command and args.command[0] == "--" else args.command
     if not command:
         raise SystemExit("pass the command after --")
+    if args.coordinate_ui and not args.ui:
+        raise SystemExit("--coordinate-ui requires --ui")
+    if not 60 <= args.preflight_max_age_seconds <= 3600:
+        raise SystemExit("--preflight-max-age-seconds must be between 60 and 3600")
     try:
         project = find_project_root(args.project)
         identity = project_identity(project, args.project_id)
@@ -141,9 +156,16 @@ def main() -> int:
             captured_at = datetime.fromisoformat(str(preflight.get("timestampUtc", "")))
         except ValueError as error:
             raise SystemExit("target preflight evidence has an invalid timestamp") from error
+        if captured_at.tzinfo is None:
+            raise SystemExit("target preflight evidence timestamp must include a timezone")
         age = datetime.now(timezone.utc) - captured_at
-        if age < timedelta(minutes=-1) or age > timedelta(minutes=10):
-            raise SystemExit("target preflight evidence is stale; capture a new geometry preflight")
+        max_age_seconds = min(args.preflight_max_age_seconds, 600) if args.coordinate_ui else args.preflight_max_age_seconds
+        if age < timedelta(minutes=-1) or age > timedelta(seconds=max_age_seconds):
+            kind = "coordinate" if args.coordinate_ui else "semantic"
+            raise SystemExit(
+                f"target preflight evidence is stale for {kind} UI "
+                f"({max_age_seconds}s limit); capture a new geometry preflight"
+            )
     evidence_dir = Path(args.evidence_dir).expanduser() if args.evidence_dir else project / "artifacts/harmonyos-tests"
     if not evidence_dir.is_absolute():
         evidence_dir = project / evidence_dir
@@ -187,6 +209,12 @@ def main() -> int:
             "command": [redact_argument(part, project) for part in command],
             "target": args.target,
             "ui": args.ui,
+            "coordinateUi": args.coordinate_ui,
+            "preflightMaxAgeSeconds": (
+                min(args.preflight_max_age_seconds, 600)
+                if args.ui and args.coordinate_ui
+                else (args.preflight_max_age_seconds if args.ui else None)
+            ),
         },
         outputs={
             "exitCode": exit_code,

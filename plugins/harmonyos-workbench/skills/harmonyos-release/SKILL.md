@@ -16,15 +16,15 @@ description: 准备并校验 HarmonyOS AppGallery 发布候选。用于 release 
 
 ## Workflow
 
-1. Read project release rules and define the release version, bundle, product, signing profile, evidence, and explicit publication boundary.
-2. Resolve the plugin root from this Skill path and run the read-only generic preflight:
+1. Read project release rules and classify the boundary: `feature` uses only affected fast checks, `candidate` adds package/signing and affected release gates, and `handoff` adds public materials and external readiness. Do not use the full handoff gate as an inner-loop test.
+2. Resolve the plugin root from this Skill path and run the read-only generic preflight at a candidate or handoff boundary:
 
 ```bash
 python3 <plugin-root>/scripts/harmonyos_workbench.py release \
   --project /path/to/project --evidence artifacts/harmonyos-workbench/release/preflight.json
 ```
 
-3. Resolve every error before building. Treat dirty worktree, missing screenshots, unfinished privacy text, and unverified external services as named warnings or blockers according to project policy.
+3. Resolve every relevant error before building. Treat dirty worktree, missing screenshots, unfinished privacy text, stale/temporary evidence and unverified external services as named warnings or blockers according to project policy. Cache an unchanged external/public-material blocker with its input fingerprint and last check; only re-run that completion gate when its inputs change, at handoff, or before submission. A candidate that will be handed off or tagged must point to a Git commit; use the strict clean-worktree policy when the project requires reproducibility.
 4. Use `harmonyos-build` with `--artifact app --mode release` to generate the candidate.
 5. Run preflight again with `--artifact ... --verify --expected-bundle ...`. Preserve the SHA-256 and verified Profile facts.
 6. Run project-specific privacy, metadata, screenshot, and live-readiness gates. When the app uses open capabilities, entitlements, ACL or paid services, require the `harmonyos-capabilities` ledger to reach `release_verified` or name the blocker. When it uses AI, require the `harmonyos-ai` data, credential, safety, evaluation and fallback handoff.
@@ -39,5 +39,8 @@ python3 <plugin-root>/scripts/harmonyos_workbench.py release \
 - Do not treat a visible switch, pending application or approved entitlement as runtime/release verification; re-check app identity, expiry, region, quota/payment and signed-release behavior.
 - For AI, require model/Kit version, evaluation-set version, abuse/failure handling, credential boundary and unverified limitations; a mocked answer is not live readiness.
 - Separate “candidate ready” from “submitted” and “published”.
+- Release evidence belongs under the project-approved durable evidence root. `/tmp`, `/private/tmp`, user-home paths and only-in-terminal evidence cannot support a release conclusion.
+- For external integrations, retain a redacted matrix result plus real automated or manual evidence. “Environment configured” and fixture success are readiness facts, not production interoperability.
+- For content-backed products, retain a content release ledger: source/generation provenance, license or rights basis, technical checks, required human review, device experience and the current `publishEligible` state. Never infer publishability from a file hash alone.
 
 Read [references/appgallery-release-gates.md](references/appgallery-release-gates.md) for the release checklist.

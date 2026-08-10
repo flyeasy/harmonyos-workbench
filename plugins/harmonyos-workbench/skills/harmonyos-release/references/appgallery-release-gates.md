@@ -13,6 +13,31 @@
 - Keep local signing configuration ignored.
 - Fail when private keystores, release Profiles, password material, or private keys are tracked.
 - Do not move, regenerate, or overwrite signing material during a preflight.
+- For a handoff, tag or store the exact Git commit and record whether the worktree was clean. A package built from a dirty worktree is diagnosable, but is not a reproducible release candidate unless project policy explicitly accepts it.
+
+## Durable evidence and external integrations
+
+- Store release evidence beneath a project-approved, reviewable root; evidence in `/tmp`, `/private/tmp`, a home directory or an expiring CI workspace is an input to archive, not a durable gate record.
+- Keep external service configuration private. Evidence may identify variable names, isolated-test labels, result hashes and reviewer conclusions, but not endpoint URLs, user names, passwords, tokens, vault paths or database names.
+- Split matrix states: `configured` (inputs are present), `ready_to_run` (safe isolation is confirmed), `runtime_verified` (real harness succeeded) and `release_verified` (durable, redacted evidence is accepted). Fixture and mock tests remain separate rows.
+- Any write-capable integration test must target an explicitly isolated test directory/database/account and have a teardown/retention statement. Never point reset, migration or cleanup commands at production or personal data.
+
+## Content-backed products
+
+When a release contains generated or curated audio, images, text, video, templates or model output, maintain a release ledger for every publishable collection or asset class:
+
+```yaml
+asset_or_batch:
+source_or_generation_receipt:
+rights_or_license_basis:
+technical_checks:
+human_review:
+device_experience_check:
+publishEligible:
+evidence_refs:
+```
+
+The ledger must distinguish internal-preview assets from user-visible/publishable assets. Automated media checks, hashes and source tests do not substitute for rights review or human listening/viewing where product policy requires them.
 
 ## Product readiness
 

@@ -65,6 +65,7 @@ class SkillContractTest(unittest.TestCase):
             "test-plan",
             "test-run",
             "testing-inventory",
+            "integration-plan",
             "release",
         ):
             self.assertIn(f'"{command}"', text)

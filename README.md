@@ -17,6 +17,10 @@ HarmonyOS 项目真正困难的部分通常不是某一条命令，而是跨阶�
 
 HarmonyOS Workbench 用统一阶段契约、项目级目标绑定、排他租约、规格指纹和脱敏证据记录解决这些问题。
 
+近期在内容型应用、金融教育应用、蓝牙硬件链路和多端同步产品中的回测还补上了四类跨项目门禁：内容来源/人工体验与可发布状态、外部集成的隔离矩阵、项目脚本对已租赁目标的安全桥接，以及可绑定 Git 快照的持久发布证据。
+
+完整的能力边界、脚本实现、证据模型、交付画像和精简原则见 [Workbench 架构设计](docs/WORKBENCH_ARCHITECTURE.md)。
+
 ## 能力
 
 | 阶段 | Skill | 主要产出 |
@@ -107,7 +111,17 @@ python3 plugins/harmonyos-workbench/scripts/harmonyos_workbench.py capability-au
 1. 每个项目和角色固定绑定一个目标，不在运行中“随便取第一个在线设备”。
 2. 启动、安装、截图和 UI 自动化前必须持有有效的排他租约。
 3. 每个模拟器绑定独立 HDC 端口；设备规格或屏幕几何漂移时阻断旧坐标继续执行。
-4. UI 测试必须引用十分钟内生成、且与项目、角色、目标指纹和租约一致的预检证据。
+4. UI 测试必须引用与项目、角色、目标指纹和租约一致的预检证据；语义选择器默认可复用 30 分钟内的匹配预检（最多可配置 60 分钟），坐标点击仍必须使用十分钟内的几何预检。
+
+项目自带的 HDC/MCP 脚本不得硬编码 serial、端口或“第一个在线设备”。完整插件可在有效租约后生成短生命周期 `target bridge`，脚本通过 `HARMONYOS_TARGET_BRIDGE` 显式读取它。
+
+外部服务测试先运行只读集成预检；它仅检查变量名、隔离确认和证据计划，不会连接服务或回显凭据：
+
+```bash
+python3 plugins/harmonyos-workbench/scripts/harmonyos_workbench.py integration-plan \
+  --project /path/to/project --manifest docs/integration-matrix.json \
+  --env-file /private/path/to/test.env
+```
 
 快速查看命令：
 

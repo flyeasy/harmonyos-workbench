@@ -25,9 +25,9 @@ permissions:
 
 ## Workflow
 
-1. 读取项目发布规则，定义版本、bundle、product、签名期望、证据和明确的发布边界。
-2. 只读检查工作树、版本元数据、隐私文本、截图计划、外部服务状态和敏感文件跟踪情况。
-3. 解决错误；dirty worktree、缺失截图、未完成隐私文案和未验证外部服务按项目政策列为 warning 或 blocker。
+1. 读取项目发布规则，区分 `feature`（受影响快速检查）、`candidate`（包/签名和受影响门禁）与 `handoff`（公开材料和外部就绪），定义版本、bundle、product、签名期望、证据和明确的发布边界。
+2. 只在 candidate/handoff 边界做只读检查工作树、版本元数据、隐私文本、截图计划、外部服务状态和敏感文件跟踪情况。
+3. 解决相关错误；dirty worktree、缺失截图、未完成隐私文案和未验证外部服务按项目政策列为 warning 或 blocker。对未变化的外部/公开材料阻塞记录输入指纹与最近检查，只有依赖变化、交接或提交前才重跑完成审计。
 4. 使用 `harmonyos-build` 生成 `app + release` 候选。
 5. 验证产物非空、SHA-256、签名、嵌入 Profile、期望 bundle、release 类型和 distribution。
 6. 运行项目专用的隐私、元数据、截图和线上就绪门禁。
@@ -44,6 +44,9 @@ permissions:
 - candidate ready 必须有签名/Profile 核验、期望 bundle、release/distribution、产物哈希和隐私扫描。
 - `candidate ready`、`submitted` 和 `published` 是三个不同状态。
 - 商店提交是外部发布动作，不能从“准备发布”推断授权。
+- 候选交接必须绑定 Git 提交；工作树是否干净和 `git diff --check` 结果需留档。临时目录、用户主目录或仅终端可见的证据不能构成发布结论。
+- 外部集成把 `configured / ready_to_run / runtime_verified / release_verified` 分开；配置完成或 fixture 成功不等于生产互通。
+- 内容型应用必须保留素材/生成来源、权利依据、技术检查、人工审核、设备体验与 `publishEligible` 状态；哈希不替代人工听审、观感或授权审查。
 
 ## 完整插件
 

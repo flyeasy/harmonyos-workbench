@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import re
 import sys
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
@@ -27,6 +28,7 @@ from harmony_common.profile import verify_artifact_profile  # noqa: E402
 
 
 PRIVATE_SUFFIXES = {".p12", ".jks", ".keystore", ".pem", ".key", ".p7b"}
+EPHEMERAL_EVIDENCE = re.compile(r"(?:/private)?/tmp/|/Users/[^\s\"']+", re.IGNORECASE)
 
 
 def latest_app(root: Path) -> Path | None:
@@ -40,6 +42,39 @@ def tracked_files(root: Path) -> list[str]:
     result = run(["git", "ls-files"], cwd=root)
     return [line.strip() for line in result.stdout.splitlines() if line.strip()] if result.returncode == 0 else []
 
+
+def git_snapshot(root: Path) -> dict[str, object]:
+    head = run(["git", "rev-parse", "HEAD"], cwd=root)
+    status = run(["git", "status", "--porcelain"], cwd=root)
+    diff_check = run(["git", "diff", "--check"], cwd=root)
+    return {
+        "commit": head.stdout.strip() if head.returncode == 0 else "",
+        "dirtyPathCount": len([line for line in status.stdout.splitlines() if line.strip()]) if status.returncode == 0 else 0,
+        "diffCheckPassed": diff_check.returncode == 0,
+    }
+
+
+def evidence_durability(root: Path, location: Path) -> dict[str, object]:
+    try:
+        relative = location.resolve().relative_to(root.resolve())
+    except ValueError:
+        return {"status": "failed", "reason": "evidence_root_outside_project", "files": 0, "temporaryRefs": 0}
+    if not location.is_dir():
+        return {"status": "failed", "reason": "evidence_root_missing", "files": 0, "temporaryRefs": 0}
+    files = 0
+    temporary_refs = 0
+    for item in location.rglob("*"):
+        if not item.is_file() or item.suffix.lower() not in {".json", ".md", ".txt", ".html", ".log"}:
+            continue
+        files += 1
+        try:
+            temporary_refs += len(EPHEMERAL_EVIDENCE.findall(item.read_text(encoding="utf-8", errors="ignore")))
+        except OSError:
+            continue
+    if temporary_refs:
+        return {"status": "failed", "reason": "ephemeral_or_home_path_in_evidence", "files": files, "temporaryRefs": temporary_refs, "path": relative.as_posix()}
+    return {"status": "passed", "reason": "", "files": files, "temporaryRefs": 0, "path": relative.as_posix()}
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project", default=".")
@@ -51,6 +86,10 @@ def main() -> int:
     parser.add_argument("--expected-distribution", default="app_gallery")
     parser.add_argument("--verify", action="store_true")
     parser.add_argument("--strict", action="store_true")
+    parser.add_argument("--require-clean-worktree", action="store_true")
+    parser.add_argument("--require-git-commit", action="store_true")
+    parser.add_argument("--evidence-root", default="")
+    parser.add_argument("--require-durable-evidence", action="store_true")
     parser.add_argument("--evidence", default="")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
@@ -85,10 +124,24 @@ def main() -> int:
     if certificates:
         finding("warning", "certificate_tracked", f"{len(certificates)} certificate file(s) are tracked; confirm project policy")
 
-    git_status = run(["git", "status", "--porcelain"], cwd=root)
-    dirty_count = len([line for line in git_status.stdout.splitlines() if line.strip()]) if git_status.returncode == 0 else 0
+    snapshot = git_snapshot(root)
+    dirty_count = int(snapshot["dirtyPathCount"])
     if dirty_count:
-        finding("warning", "dirty_worktree", f"worktree contains {dirty_count} changed path(s)")
+        finding("error" if args.require_clean_worktree else "warning", "dirty_worktree", f"worktree contains {dirty_count} changed path(s)")
+    if args.require_git_commit and not snapshot["commit"]:
+        finding("error", "git_commit_missing", "a release handoff requires a Git commit")
+    if not snapshot["diffCheckPassed"]:
+        finding("error" if args.require_clean_worktree else "warning", "git_diff_check_failed", "git diff --check reported whitespace errors")
+    durability: dict[str, object] = {"status": "skipped"}
+    if args.evidence_root:
+        evidence_root = Path(args.evidence_root).expanduser()
+        if not evidence_root.is_absolute():
+            evidence_root = root / evidence_root
+        durability = evidence_durability(root, evidence_root)
+        if durability["status"] != "passed":
+            finding("error" if args.require_durable_evidence else "warning", str(durability["reason"]), "release evidence is missing, outside the project, or refers to temporary/private paths")
+    elif args.require_durable_evidence:
+        finding("error", "evidence_root_missing", "--require-durable-evidence requires --evidence-root")
 
     artifact = Path(args.artifact).expanduser().resolve() if args.artifact else latest_app(root)
     artifact_info: dict[str, object] = {}
@@ -139,6 +192,8 @@ def main() -> int:
         "status": "failed" if errors or (args.strict and warnings) else "passed",
         "project": str(root),
         "metadata": metadata,
+        "gitSnapshot": snapshot,
+        "evidenceDurability": durability,
         "artifact": artifact_info,
         "verification": verification,
         "findings": findings,
@@ -162,6 +217,8 @@ def main() -> int:
             },
             outputs={
                 "metadata": metadata,
+                "gitSnapshot": snapshot,
+                "evidenceDurability": durability,
                 "artifact": {
                     **artifact_info,
                     "path": evidence_path(artifact, root),

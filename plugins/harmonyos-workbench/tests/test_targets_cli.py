@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import subprocess
 import sys
@@ -172,6 +173,90 @@ class TargetsCliTest(unittest.TestCase):
             test_record["target"]["targetKeyHash"],
             record["target"]["targetKeyHash"],
         )
+        record["timestampUtc"] = (datetime.now(timezone.utc) - timedelta(minutes=15)).isoformat()
+        evidence.write_text(json.dumps(record), encoding="utf-8")
+        semantic = subprocess.run(
+            [
+                sys.executable,
+                str(TEST_RUNNER),
+                "--project",
+                str(self.project_a),
+                "--state-file",
+                str(self.state),
+                "--target",
+                "emulator",
+                "--ui",
+                "--target-preflight-evidence",
+                str(evidence),
+                "--evidence-dir",
+                str(evidence_dir),
+                "--",
+                sys.executable,
+                "-c",
+                "print('semantic-ui-target-ok')",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(semantic.returncode, 0, msg=semantic.stdout + semantic.stderr)
+        coordinate = subprocess.run(
+            [
+                sys.executable,
+                str(TEST_RUNNER),
+                "--project",
+                str(self.project_a),
+                "--state-file",
+                str(self.state),
+                "--target",
+                "emulator",
+                "--ui",
+                "--coordinate-ui",
+                "--target-preflight-evidence",
+                str(evidence),
+                "--",
+                sys.executable,
+                "-c",
+                "print('coordinate-ui-target-ok')",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertNotEqual(coordinate.returncode, 0)
+        self.assertIn("stale for coordinate UI", coordinate.stderr)
+
+    def test_bridge_is_local_only_and_requires_a_valid_lease(self) -> None:
+        self.run_cli(
+            "bind",
+            "--project",
+            str(self.project_a),
+            "--emulator-id",
+            "phone-a",
+        )
+        bridge = Path(self.temp.name) / "runtime" / "target-bridge.json"
+        self.run_cli(
+            "bridge",
+            "--project",
+            str(self.project_a),
+            "--out",
+            str(bridge),
+            expected=2,
+        )
+        self.run_cli("acquire", "--project", str(self.project_a))
+        result = self.run_cli(
+            "bridge",
+            "--project",
+            str(self.project_a),
+            "--out",
+            str(bridge),
+        )
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(bridge.stat().st_mode & 0o777, 0o600)
+        payload = json.loads(bridge.read_text(encoding="utf-8"))
+        self.assertEqual(payload["schema"], "harmonyos.workbench.target-bridge/v1")
+        self.assertEqual(payload["role"], "primary")
+        self.assertTrue(payload["runtimeSerial"])
 
     def test_different_specifications_require_narrowing(self) -> None:
         result = self.run_cli(

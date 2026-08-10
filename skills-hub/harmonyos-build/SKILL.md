@@ -26,8 +26,8 @@ permissions:
 1. 读取最近的 `AGENTS.md`、项目文档、`build-profile.json5` 和模块配置。
 2. 定义 artifact（`hap` 或 `app`）、mode、product、module target、期望输出和完成信号。
 3. 优先使用项目记录的 Hvigor wrapper 与版本；若不存在，再发现 DevEco Studio/SDK 中兼容的 Hvigor。
-4. 项目陌生时先列出或打印任务计划，不直接 clean。
-5. 只运行所需任务，保留完整退出状态和关键诊断。
+4. 项目、product/module scope 或 toolchain 陌生/变更时先列出或打印任务计划，不直接 clean；同一未变功能批次复用该计划。
+5. 只运行所需任务：`host-fast` 不因是 HarmonyOS 项目就要求 HAP，`build-slice` 对一个连贯功能批次构建一份 debug HAP，`app + release` 留给候选边界；保留完整退出状态和关键诊断。
 6. 验证产物存在、非空、扩展名正确，并计算 SHA-256。
 7. 签名类型重要时，只读取嵌入 Profile 的非敏感事实，核对 bundle、debug/release 和 distribution；不要打印 Profile 全文。
 8. 设备安装交给 `harmonyos-targets`；发布候选交给 `harmonyos-release`。

@@ -735,6 +735,42 @@ def add_project_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--role", default="primary")
 
 
+def write_target_bridge(
+    output: Path,
+    *,
+    project_id: str,
+    role: str,
+    binding: dict[str, Any],
+    lease: dict[str, Any],
+    serial: str,
+) -> Path:
+    """Write a local-only routing file for project-owned test harnesses.
+
+    The raw runtime serial is deliberately kept out of durable evidence.  A
+    bridge is short-lived local runtime state, not a file to commit or archive.
+    """
+    output = output.expanduser().resolve()
+    parent_existed = output.parent.exists()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if not parent_existed:
+        output.parent.chmod(0o700)
+    payload = {
+        "schema": "harmonyos.workbench.target-bridge/v1",
+        "projectId": project_id,
+        "role": role,
+        "runtimeSerial": serial,
+        "hdcPort": binding.get("hdcPort") or "",
+        "fingerprintDigest": binding.get("fingerprintDigest", ""),
+        "leaseExpiresAt": lease.get("expiresAt", ""),
+    }
+    temporary = output.with_suffix(output.suffix + ".tmp")
+    temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    temporary.chmod(0o600)
+    temporary.replace(output)
+    output.chmod(0o600)
+    return output
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--hdc", default="")
@@ -794,6 +830,10 @@ def main() -> int:
     add_project_args(preflight_parser)
     preflight_parser.add_argument("--skip-geometry", action="store_true")
     preflight_parser.add_argument("--evidence", default="")
+
+    bridge_parser = subparsers.add_parser("bridge")
+    add_project_args(bridge_parser)
+    bridge_parser.add_argument("--out", required=True)
 
     deploy_parser = subparsers.add_parser("deploy")
     add_project_args(deploy_parser)
@@ -1143,6 +1183,35 @@ def main() -> int:
                 )
                 payload["evidence"] = str(write_record(evidence_path, record))
             print(json.dumps(payload, ensure_ascii=False, indent=2))
+            return 0
+
+        if args.action == "bridge":
+            root, project_id, _, binding, lease, serial, _ = preflight_data(
+                args,
+                require_geometry=True,
+            )
+            bridge = write_target_bridge(
+                Path(args.out),
+                project_id=project_id,
+                role=args.role,
+                binding=binding,
+                lease=lease,
+                serial=serial,
+            )
+            print(
+                json.dumps(
+                    {
+                        "status": "passed",
+                        "projectId": project_id,
+                        "role": args.role,
+                        "bridge": str(bridge),
+                        "fingerprintDigest": binding["fingerprintDigest"],
+                        "leaseExpiresAt": lease["expiresAt"],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
             return 0
 
         if args.action == "deploy":
