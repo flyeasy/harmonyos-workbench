@@ -1,7 +1,7 @@
 ---
 name: harmonyos-motion
 description: 把 HarmonyOS、ArkUI、Canvas、WebView 或代码生成产品动效的模糊手感和现象转换为准确术语、相近概念、诊断分支与可能的 ArkUI 能力，例如“松手像急刹车”“滚动后按钮来不及点”“页面像从同一张卡片长出来”“键盘弹出导致远端布局乱跳”。
-version: 0.3.0
+version: 0.4.0
 category: ux
 platforms:
   - CODEX_CLI
@@ -98,4 +98,3 @@ ArkUI 关联：核对跟手与回稳使用的曲线、起始速度和目标 SDK 
 诊断分支：慢放查看对象是否先归零，同时检查离手帧长。
 边界：若位置连续但整帧冻结，优先归为性能长帧。
 ```
-

@@ -1,7 +1,7 @@
 ---
 name: harmonyos-review
 description: 严格 review、audit、审查、验收或评估 HarmonyOS、OpenHarmony 与 ArkUI 产品、代码、截图、录屏和设备证据。只报告有证据的任务、导航、状态真实性、生命周期、跨设备、多输入、视觉、动效、无障碍与性能问题，并给出最小修复计划和通过结论。
-version: 0.3.0
+version: 0.4.0
 category: review
 platforms:
   - CODEX_CLI
@@ -92,4 +92,3 @@ permissions:
 - **通过**：无 Blocker/Major，关键任务、设备、输入、字号、无障碍和性能证据充分。
 
 设备证据必须来自 `harmonyos-targets` 的有效项目绑定、租约和预检；否则最高只能给“有条件通过”。
-

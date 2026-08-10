@@ -11,6 +11,8 @@ import sys
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 COMMANDS = {
     "build": PLUGIN_ROOT / "skills/harmonyos-build/scripts/harmony_build.py",
+    "capability-audit": PLUGIN_ROOT
+    / "skills/harmonyos-capabilities/scripts/harmony_capability_audit.py",
     "profile": PLUGIN_ROOT / "skills/harmonyos-build/scripts/inspect_harmony_profile.py",
     "targets": PLUGIN_ROOT / "skills/harmonyos-targets/scripts/harmonyos_targets.py",
     "test-plan": PLUGIN_ROOT / "skills/harmonyos-test/scripts/harmony_test_plan.py",

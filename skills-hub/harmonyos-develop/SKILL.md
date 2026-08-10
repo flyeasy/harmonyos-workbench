@@ -1,7 +1,7 @@
 ---
 name: harmonyos-develop
-description: 实现、重构或诊断 HarmonyOS、OpenHarmony 与 ArkTS 应用功能和工程架构。用于 Ability 与生命周期、状态管理、服务层、权限、网络、存储、数据库、并发、后台任务、ArkWeb、跨进程或跨设备通信、错误恢复以及非纯视觉业务逻辑。
-version: 0.3.0
+description: 实现、重构或诊断 HarmonyOS、OpenHarmony 与 ArkTS 应用功能和工程架构。用于 Ability 与生命周期、状态管理、服务层、权限实现、网络、存储、数据库、并发、后台任务、ArkWeb、跨进程或跨设备通信和错误恢复。开放能力/权益/ACL 选择与开通使用 harmonyos-capabilities；AI 架构使用 harmonyos-ai。
+version: 0.4.0
 category: build
 platforms:
   - CODEX_CLI
@@ -18,7 +18,7 @@ permissions:
 ## Phase contract
 
 1. **Input**：项目根、功能契约、目标 API/SDK、相关模块和上游设计基线。
-2. **Preflight**：读取项目约束，定位权威状态源、生命周期 owner、权限和外部依赖。
+2. **Preflight**：读取项目约束，定位权威状态源、生命周期 owner、权限和外部依赖；需要开放能力时引用上游能力账本。
 3. **Execute**：完成一个连贯的最小改动批次。
 4. **Verify**：先静态/单元/契约，再构建；需要真实能力时交给目标和测试阶段。
 5. **Evidence**：记录改动范围、验证命令、结果和剩余风险。
@@ -39,6 +39,7 @@ permissions:
 - 区分 `acknowledged / pending / confirmed / failed`，旧响应不得覆盖新意图。
 - Listener、timer、poll、request、WebSocket 和后台任务必须随 owner 生命周期释放。
 - 权限在使用点检查并处理拒绝；不要仅在清单中声明后假设可用。
+- 能力开关、权益审核、ACL 批准、用户授权和运行时可用性分开建模；任一缺失都走真实降级。
 - 网络、存储和数据库失败必须可恢复，不在 UI 层吞掉持久化错误。
 - 密钥、密码、Profile 和签名材料不写入源码、日志、证据或版本控制。
 - 并发代码声明取消、背压、顺序和重入策略。
@@ -63,4 +64,3 @@ permissions:
 ## 输出
 
 报告已实现结果、权威状态与生命周期判断、修改范围、运行过的验证及证据，以及需要后续阶段确认的事项。
-

@@ -1,0 +1,4 @@
+interface:
+  display_name: "HarmonyOS Capabilities"
+  short_description: "选择、申请并验证鸿蒙开放能力、权益与 ACL 权限"
+  default_prompt: "Use $harmonyos-capabilities to plan and verify this HarmonyOS capability or ACL integration."

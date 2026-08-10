@@ -1,6 +1,6 @@
 # HarmonyOS Workbench
 
-面向 Codex 的端到端 HarmonyOS / OpenHarmony 开发工作台。它把产品设计、ArkTS/ArkUI 开发、Hvigor 构建、模拟器与真机分配、分层测试、体验审查和 AppGallery 发布预检组织为一条可暂停、可恢复、可复核的流程。
+面向 Codex 的端到端 HarmonyOS / OpenHarmony 开发工作台。它把产品设计、开放能力/权益/ACL、Agent 与端云 AI、ArkTS/ArkUI 开发、Hvigor 构建、模拟器与真机分配、分层测试、体验审查和 AppGallery 发布预检组织为一条可暂停、可恢复、可复核的流程。
 
 > 独立、非官方社区项目。HarmonyOS、OpenHarmony、ArkUI、华为及相关名称和商标归各自权利人所有。
 
@@ -9,6 +9,8 @@
 HarmonyOS 项目真正困难的部分通常不是某一条命令，而是跨阶段的一致性：
 
 - 需求、代码、构建产物和设备证据是否来自同一个项目状态；
+- 开放能力是只被发现、正在申请、已批准、已开通，还是真的在签名发布包上通过了验证；
+- AI 功能究竟应该使用小艺 Skill/Agent、系统 AI Kit、端侧模型、云模型还是联网增强；
 - 多个项目并行时，是否稳定使用各自绑定的模拟器或真机；
 - 设备规格、屏幕几何和 HDC 端口变化后，旧坐标与旧证据是否被及时判定为失效；
 - 测试、体验审查和发布结论是否准确区分“已验证”“失败”“被阻塞”和“仍需验证”。
@@ -21,6 +23,8 @@ HarmonyOS Workbench 用统一阶段契约、项目级目标绑定、排他租约
 | --- | --- | --- |
 | 入口与编排 | `harmonyos-workbench` | 阶段路由、账本、交接与完成挑战 |
 | 产品与界面 | `harmonyos-design` | HarmonyOS 设计基线与 ArkUI 落点 |
+| 开放能力 | `harmonyos-capabilities` | AGC 开关、Kit、权益、ACL、凭据、隐私和发布账本 |
+| AI 工程 | `harmonyos-ai` | Skill/Agent、系统 AI、端侧推理、联网增强与效果评测 |
 | 功能实现 | `harmonyos-develop` | ArkTS/ArkUI 架构、状态与平台集成 |
 | 构建 | `harmonyos-build` | 可复现 Hvigor 构建与 artifact 校验 |
 | 目标管理 | `harmonyos-targets` | 模拟器/真机发现、绑定、租约、端口和几何门禁 |
@@ -50,11 +54,12 @@ codex plugin add harmonyos-workbench@harmonyos-workbench
 npx @skills-hub-ai/cli install harmonyos-workbench --target codex
 ```
 
-需要把九个阶段能力全部安装到本机时：
+需要把十一个系列能力全部安装到本机时：
 
 ```bash
 skills=(
-  harmonyos-workbench harmonyos-design harmonyos-develop
+  harmonyos-workbench harmonyos-design harmonyos-capabilities harmonyos-ai
+  harmonyos-develop
   harmonyos-build harmonyos-targets harmonyos-test
   harmonyos-review harmonyos-release harmonyos-motion
 )
@@ -67,7 +72,8 @@ done
 便携版条目：
 
 - [`harmonyos-workbench`](https://skills-hub.ai/skills/harmonyos-workbench)：端到端入口与阶段路由；
-- [`harmonyos-design`](https://skills-hub.ai/skills/harmonyos-design)、[`harmonyos-develop`](https://skills-hub.ai/skills/harmonyos-develop)、[`harmonyos-build`](https://skills-hub.ai/skills/harmonyos-build)；
+- [`harmonyos-design`](https://skills-hub.ai/skills/harmonyos-design)、[`harmonyos-capabilities`](https://skills-hub.ai/skills/harmonyos-capabilities)、[`harmonyos-ai`](https://skills-hub.ai/skills/harmonyos-ai)；
+- [`harmonyos-develop`](https://skills-hub.ai/skills/harmonyos-develop)、[`harmonyos-build`](https://skills-hub.ai/skills/harmonyos-build)；
 - [`harmonyos-targets`](https://skills-hub.ai/skills/harmonyos-targets)、[`harmonyos-test`](https://skills-hub.ai/skills/harmonyos-test)、[`harmonyos-review`](https://skills-hub.ai/skills/harmonyos-review)；
 - [`harmonyos-release`](https://skills-hub.ai/skills/harmonyos-release)、[`harmonyos-motion`](https://skills-hub.ai/skills/harmonyos-motion)。
 
@@ -78,6 +84,21 @@ Skills Hub 便携版保留统一阶段契约、路由规则和安全边界，适
 ```text
 用 harmonyos-workbench 端到端完成这个 HarmonyOS 任务，并保留可复核证据。
 ```
+
+## AI 与开放能力工作流
+
+`harmonyos-capabilities` 建立能力账本，把业务场景、官方能力名、API/设备/地区范围、控制台开关、权益/ACL、Manifest、运行时授权、隐私和发布证据放在同一条状态链上。它优先选择无权限方案和 Picker/安全控件，只在精确场景符合时评估 ACL。
+
+`harmonyos-ai` 在小艺 Skill/Agent、Agent Framework Kit、Intents Kit、Core Speech/Core Vision/Natural Language/Speech/Vision Kit、MindSpore Lite/NNRT/CANN、云模型和 AGC AI 问答联网增强之间做选型，同时强制处理凭据、数据出端、提示注入、工具授权、降级、成本和固定评测集。
+
+可以先做只读项目扫描：
+
+```bash
+python3 plugins/harmonyos-workbench/scripts/harmonyos_workbench.py capability-audit \
+  --project /path/to/project --json
+```
+
+扫描结果只是源码线索，不会被写成 AGC 已开通或 ACL 已审批。
 
 ## 多项目、多模拟器工作流
 

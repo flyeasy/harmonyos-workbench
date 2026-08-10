@@ -1,7 +1,7 @@
 ---
 name: harmonyos-design
 description: 设计、重构、实现或改进 HarmonyOS、OpenHarmony 与 ArkUI 产品界面。用于从需求建立设计基线，把交互方案落到 ArkTS/ArkUI，处理导航、手机/平板/折叠屏/PC 适配、多输入、状态真实性、生命周期、动效、无障碍、性能、WebView/IME 几何与设备验证。
-version: 0.3.0
+version: 0.4.0
 category: ux
 platforms:
   - CODEX_CLI
@@ -106,4 +106,3 @@ permissions:
 输出上下文与假设、状态/所有权模型、导航与适配方案、视觉与动效 Token、ArkUI 落点、验证证据和未验证项。
 
 只有观察状态与契约一致、关键入口和失败恢复已验证、目标设备或明确替代证据已覆盖、共享路径无明显回归时才说完成。否则使用 `needs_verification` 或 `partial`。
-

@@ -1,7 +1,7 @@
 ---
 name: harmonyos-release
-description: 准备并校验 HarmonyOS AppGallery 发布候选。用于 release APP 选择、本地签名配置卫生、版本元数据、签名与 Profile 验证、产物哈希、隐私门禁、截图和发布交接；只在用户明确授权时执行商店提交。
-version: 0.3.0
+description: 准备并校验 HarmonyOS AppGallery 发布候选。用于 release APP、签名/Profile、产物哈希、开放能力/权益/ACL 状态、AI 数据与评测交接、隐私、截图和发布交接；只在用户明确授权时执行商店提交。
+version: 0.4.0
 category: deploy
 platforms:
   - CODEX_CLI
@@ -17,7 +17,7 @@ permissions:
 ## Phase contract
 
 1. **Input**：项目根、版本、bundle、product、签名期望和发布边界。
-2. **Preflight**：只读检查版本控制、签名材料、隐私和候选产物。
+2. **Preflight**：只读检查版本控制、签名材料、隐私、能力账本、AI 交接和候选产物。
 3. **Execute**：调用 `harmonyos-build` 生成 release APP；不自动提交商店。
 4. **Verify**：校验 APP、SHA-256、签名、Profile、bundle 和 distribution。
 5. **Evidence**：记录脱敏事实，不持久化密码、签名内容和本机绝对路径。
@@ -31,6 +31,8 @@ permissions:
 4. 使用 `harmonyos-build` 生成 `app + release` 候选。
 5. 验证产物非空、SHA-256、签名、嵌入 Profile、期望 bundle、release 类型和 distribution。
 6. 运行项目专用的隐私、元数据、截图和线上就绪门禁。
+   - 开放能力、权益、ACL 和付费服务要求 `harmonyos-capabilities` 账本达到 `release_verified` 或明确阻塞；
+   - AI 功能要求 `harmonyos-ai` 的数据、凭据、安全、评测和降级交接。
 7. 在完整交接处停止。只有用户明确要求后才上传包、编辑 AppGallery 列表或点击提交。
 8. 提交后再核对平台回执；没有回执时不能说 published。
 
@@ -53,4 +55,3 @@ codex plugin add harmonyos-workbench@harmonyos-workbench
 ```
 
 完整插件不可用时使用只读系统工具完成等价验证；任何无法验证的签名或隐私门禁都保持 `needs_verification`。
-

@@ -1,7 +1,7 @@
 ---
 name: harmonyos-targets
 description: 为 HarmonyOS 项目发现、分配、固定、租赁和验证物理设备及 DevEco 模拟器。用于多项目并行开发、多模拟器管理、稳定选择手机/平板/折叠屏目标、唯一 HDC 端口分配、安装启动、截图、UI 自动化前几何校验和设备争用诊断。
-version: 0.3.0
+version: 0.4.0
 category: ops
 platforms:
   - CODEX_CLI
@@ -65,4 +65,3 @@ codex plugin add harmonyos-workbench@harmonyos-workbench
 ```
 
 在完整门禁可用前，将设备阶段标记为 `blocked`，但可以继续纯主机构建或测试。
-

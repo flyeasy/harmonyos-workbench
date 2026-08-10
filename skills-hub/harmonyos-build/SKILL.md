@@ -1,7 +1,7 @@
 ---
 name: harmonyos-build
 description: 构建并校验 HarmonyOS、OpenHarmony 的 HAP 或 APP 产物。用于 Hvigor debug/release 构建、module/product 选择、SDK 与 Hvigor 发现、构建诊断、产物选择、SHA-256 和签名 Profile 事实检查。
-version: 0.3.0
+version: 0.4.0
 category: build
 platforms:
   - CODEX_CLI
@@ -56,4 +56,3 @@ codex plugin add harmonyos-workbench@harmonyos-workbench
 ```
 
 完整插件不可用时，使用项目自己的 wrapper 和只读工具完成同等检查；无法核验的签名事实标记为 `needs_verification`。
-

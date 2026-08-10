@@ -20,7 +20,7 @@ class SkillContractTest(unittest.TestCase):
             self.assertTrue(name.startswith("harmonyos-"))
             self.assertEqual(skill_file.parent.name, name)
             names.append(name)
-        self.assertEqual(len(names), 9)
+        self.assertEqual(len(names), 11)
         self.assertEqual(len(names), len(set(names)))
 
     def test_every_capability_uses_the_common_contract(self) -> None:
@@ -59,6 +59,7 @@ class SkillContractTest(unittest.TestCase):
         text = launcher.read_text(encoding="utf-8")
         for command in (
             "build",
+            "capability-audit",
             "profile",
             "targets",
             "test-plan",

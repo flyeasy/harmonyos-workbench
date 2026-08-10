@@ -1,7 +1,7 @@
 ---
 name: harmonyos-test
 description: 规划、执行并归一化 HarmonyOS 应用和元服务测试。用于 Local Test、Instrument Test、项目 smoke、Hypium UI、ArkWeb Selenium、DevEco Testing 专项、性能与回归证据；设备测试必须使用项目绑定、有效租约和目标预检。
-version: 0.3.0
+version: 0.4.0
 category: test
 platforms:
   - CODEX_CLI
@@ -58,4 +58,3 @@ codex plugin add harmonyos-workbench@harmonyos-workbench
 ```
 
 缺少设备绑定或证据包装时，可以继续主机测试，但设备测试必须标记为 `blocked` 或 `needs_verification`。
-

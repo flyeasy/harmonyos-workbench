@@ -1,7 +1,7 @@
 {
   "name": "harmonyos-workbench",
-  "version": "0.3.0+codex.20260725043642",
-  "description": "End-to-end HarmonyOS development workbench with stable target allocation, evidence-driven verification, and AppGallery release gates.",
+  "version": "0.4.0+codex.20260810092307",
+  "description": "End-to-end HarmonyOS development workbench with AI architecture, capability and ACL gates, stable targets, evidence-driven verification, and AppGallery release checks.",
   "license": "Apache-2.0",
   "author": {
     "name": "flyeasy",
@@ -11,8 +11,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "HarmonyOS Workbench",
-    "shortDescription": "\u7aef\u5230\u7aef\u8f85\u52a9 HarmonyOS \u8bbe\u8ba1\u3001\u5f00\u53d1\u3001\u6784\u5efa\u3001\u8bbe\u5907\u3001\u6d4b\u8bd5\u4e0e\u53d1\u5e03",
-    "longDescription": "\u7edf\u4e00\u7f16\u6392 HarmonyOS \u4e0e OpenHarmony \u4ea7\u54c1\u8bbe\u8ba1\u3001ArkTS \u5f00\u53d1\u3001Hvigor \u6784\u5efa\u3001\u9879\u76ee\u7ea7\u8bbe\u5907\u548c\u6a21\u62df\u5668\u79df\u7ea6\u3001\u6d4b\u8bd5\u8bc1\u636e\u3001\u4f53\u9a8c\u5ba1\u67e5\u53ca AppGallery \u53d1\u5e03\u95e8\u7981\u3002",
+    "shortDescription": "\u7aef\u5230\u7aef\u8f85\u52a9 HarmonyOS \u8bbe\u8ba1\u3001AI\u3001\u5f00\u653e\u80fd\u529b\u3001\u5f00\u53d1\u3001\u9a8c\u8bc1\u4e0e\u53d1\u5e03",
+    "longDescription": "\u7edf\u4e00\u7f16\u6392 HarmonyOS \u4e0e OpenHarmony \u4ea7\u54c1\u8bbe\u8ba1\u3001\u5f00\u653e\u80fd\u529b/\u6743\u76ca/ACL\u3001Agent \u4e0e\u7aef\u4e91 AI\u3001ArkTS \u5f00\u53d1\u3001Hvigor \u6784\u5efa\u3001\u9879\u76ee\u7ea7\u8bbe\u5907\u548c\u6a21\u62df\u5668\u79df\u7ea6\u3001\u6d4b\u8bd5\u8bc1\u636e\u3001\u4f53\u9a8c\u5ba1\u67e5\u53ca AppGallery \u53d1\u5e03\u95e8\u7981\u3002",
     "developerName": "flyeasy",
     "category": "Developer Tools",
     "capabilities": [
@@ -21,6 +21,8 @@
     ],
     "defaultPrompt": [
       "\u7aef\u5230\u7aef\u5b8c\u6210\u8fd9\u4e2a HarmonyOS \u5f00\u53d1\u4efb\u52a1\uff0c\u5e76\u4fdd\u7559\u53ef\u590d\u6838\u8bc1\u636e\u3002",
+      "\u4e3a\u8fd9\u4e2a HarmonyOS AI \u529f\u80fd\u9009\u62e9\u5408\u9002\u7684 Agent\u3001Skill\u3001\u7cfb\u7edf Kit\u3001\u7aef\u4fa7\u6a21\u578b\u6216\u8054\u7f51\u589e\u5f3a\u65b9\u6848\u3002",
+      "\u5ba1\u8ba1\u8fd9\u4e2a\u9879\u76ee\u4f7f\u7528\u7684\u5f00\u653e\u80fd\u529b\u3001\u6743\u76ca\u548c ACL \u6743\u9650\uff0c\u8f93\u51fa\u53d1\u5e03\u524d\u95e8\u7981\u3002",
       "\u4e3a\u8fd9\u4e2a\u9879\u76ee\u56fa\u5b9a\u5408\u9002\u7684\u6a21\u62df\u5668\u540e\u6267\u884c\u6784\u5efa\u548c UI \u56de\u5f52\u3002",
       "\u5ba1\u67e5\u5f53\u524d HarmonyOS \u9879\u76ee\u5e76\u7ed9\u51fa\u6700\u5c0f\u4fee\u590d\u4e0e\u53d1\u5e03\u8def\u5f84\u3002"
     ]

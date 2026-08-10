@@ -1,6 +1,6 @@
 ---
 name: harmonyos-workbench
-description: 端到端编排 HarmonyOS、OpenHarmony 与 ArkTS/ArkUI 产品开发。用于跨越需求澄清、设计、功能实现、Hvigor 构建、项目级设备或模拟器分配、安装运行、测试、体验审查和 AppGallery 发布门禁的综合任务，也用于用户只说“开发、修复、验证或交付这个 HarmonyOS 项目”而尚未指定阶段时。纯单阶段任务转交对应的 harmonyos-* 能力；不替代各阶段的专属规则。
+description: 端到端编排 HarmonyOS、OpenHarmony 与 ArkTS/ArkUI 产品开发。用于跨越需求澄清、设计、开放能力/权益/ACL、AI 方案、功能实现、Hvigor 构建、项目级设备或模拟器分配、安装运行、测试、体验审查和 AppGallery 发布门禁的综合任务，也用于用户只说“开发、修复、验证或交付这个 HarmonyOS 项目”而尚未指定阶段时。纯单阶段任务转交对应的 harmonyos-* 能力；不替代各阶段的专属规则。
 ---
 
 # HarmonyOS Workbench
@@ -12,12 +12,14 @@ description: 端到端编排 HarmonyOS、OpenHarmony 与 ArkTS/ArkUI 产品开�
 | 阶段 | Skill | 主要产物 |
 | --- | --- | --- |
 | 01 设计 | `harmonyos-design` | 任务、状态、导航、适配与验收基线 |
-| 02 开发 | `harmonyos-develop` | ArkTS/ArkUI 与平台能力实现 |
-| 03 构建 | `harmonyos-build` | 可哈希的 HAP/APP |
-| 04 目标 | `harmonyos-targets` | 项目绑定、排他租约和规格已验证的目标 |
-| 05 测试 | `harmonyos-test` | 分层测试结果与可复核证据 |
-| 06 审查 | `harmonyos-review` | 有证据的发现、修复计划和结论 |
-| 07 发布 | `harmonyos-release` | 签名 APP 与 AppGallery 门禁结果 |
+| 02 能力 | `harmonyos-capabilities` | 开放能力、权益、ACL、凭据和隐私账本 |
+| 03 AI（按需） | `harmonyos-ai` | AI 能力层选型、数据/安全边界和效果评测契约 |
+| 04 开发 | `harmonyos-develop` | ArkTS/ArkUI 与平台能力实现 |
+| 05 构建 | `harmonyos-build` | 可哈希的 HAP/APP |
+| 06 目标 | `harmonyos-targets` | 项目绑定、排他租约和规格已验证的目标 |
+| 07 测试 | `harmonyos-test` | 分层测试结果与可复核证据 |
+| 08 审查 | `harmonyos-review` | 有证据的发现、修复计划和结论 |
+| 09 发布 | `harmonyos-release` | 签名 APP 与 AppGallery 门禁结果 |
 | 辅助能力 | `harmonyos-motion` | 动效术语、诊断分支与 ArkUI 检索方向 |
 
 设计审查可以在实现前后重复；目标阶段必须先于任何设备安装、截图或 UI 自动化。
@@ -46,7 +48,10 @@ description: 端到端编排 HarmonyOS、OpenHarmony 与 ArkTS/ArkUI 产品开�
    - 获取排他租约；
    - 核对 UUID、实例路径、HDC 端口、API 和显示规格；
    - UI 自动化前再次执行几何预检。
-5. 按 `设计 → 开发 → 构建 → 目标 → 测试 → 审查 → 发布` 推进所需阶段。
+5. 按 `设计 → 能力 → AI（按需）→ 开发 → 构建 → 目标 → 测试 → 审查 → 发布` 推进所需阶段。
+   - 任务需要 Kit、AGC 服务、权益、商户/资格或 ACL 时，先建能力账本；
+   - 任务涉及 Agent、Skill、系统 AI、端侧模型、云模型或 AI 联网增强时，再进入 AI 阶段；
+   - 能力选择和开通状态不在 `harmonyos-develop` 中重复判定。
 6. 每个阶段结束后更新账本和证据，不把失败自动解释为产品缺陷。
 7. 做完成挑战：检查遗漏任务、目标漂移、旧证据、未覆盖入口和发布边界。
 
@@ -85,6 +90,8 @@ python3 <plugin-root>/scripts/harmonyos_workbench.py targets inventory
 - 当前项目目标绑定和证据一致；
 - 设备/UI 结论来自同一次有效租约和规格预检；
 - 关键失败与恢复路径已验证；
+- 所需开放能力、权益、ACL、凭据、资费和隐私都有可追溯状态；
+- AI 功能的能力层、模型/Kit 版本、评测集、工具授权和降级路径已验证；
 - 产物、哈希、测试和审查结论可以回溯；
 - 发布动作没有越过用户授权边界；
 - 未验证项被明确保留，而不是被“构建成功”掩盖。
