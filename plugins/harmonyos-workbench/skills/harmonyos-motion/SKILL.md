@@ -1,6 +1,6 @@
 ---
 name: harmonyos-motion
-description: 把 HarmonyOS、ArkUI、Canvas、WebView 或代码生成产品动效的模糊手感和现象转换为准确术语、相近概念、诊断分支与可能的 ArkUI 能力，例如“松手像急刹车”“滚动后按钮来不及点”“页面像从同一张卡片长出来”“键盘弹出导致远端布局乱跳”。用于命名、检索和编写提示词。不要用于完整设计审查。不要用于直接改代码、传统视频剪辑或纯构建问题。
+description: 把 HarmonyOS、ArkUI、Canvas、WebView 或代码生成产品动效的模糊手感和现象转换为准确术语、相近概念、诊断分支与可能的 ArkUI 能力，例如“松手像急刹车”“列表到头硬截”“轻拉就误触刷新”“滚动后按钮来不及点”“页面像从同一张卡片长出来”“键盘弹出导致远端布局乱跳”。用于命名、检索和编写提示词。不要用于完整设计审查。不要用于直接改代码、传统视频剪辑或纯构建问题。
 ---
 
 <!-- Modified from dososo/HarmonyOS-Design commit 205afcbf1d8170239477a98a8472089d4ab7b86c for HarmonyOS Workbench. -->

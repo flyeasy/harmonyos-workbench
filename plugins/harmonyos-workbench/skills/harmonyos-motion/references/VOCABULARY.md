@@ -29,6 +29,10 @@ Use the smallest matching term. Terms describe an observation; they do not prove
 | child and scroll container disagree | gesture competition | recognizer mismatch in automation |
 | bounce around target | underdamped spring | critical/overdamped settle |
 | release feels like a brake | velocity discontinuity | dropped frame |
+| small pull must not request data | pull-to-refresh threshold / armed state | ordinary edge bounce |
+| pull starts twice while pending | refresh re-entry guard | two independent refresh requests |
+| refresh spinner ends without new/error state | false completion | confirmed data update / explicit failure |
+| top pull conflicts with nested child | scroll-refresh gesture competition | automation recognizer mismatch |
 
 Possible ArkUI directions: `curves.responsiveSpringMotion()` for tracking, `curves.springMotion()` or `curves.interpolatingSpring()` for settle, and `parallelGesture` / `priorityGesture` for competition. Verify availability and semantics on the target SDK.
 

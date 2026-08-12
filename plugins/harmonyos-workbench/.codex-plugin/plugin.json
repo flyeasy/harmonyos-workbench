@@ -1,6 +1,6 @@
 {
   "name": "harmonyos-workbench",
-  "version": "0.4.0+codex.20260812123727",
+  "version": "0.4.0+codex.20260812125515",
   "description": "End-to-end HarmonyOS development workbench with AI architecture, capability and ACL gates, stable targets, evidence-driven verification, and AppGallery release checks.",
   "license": "Apache-2.0",
   "author": {

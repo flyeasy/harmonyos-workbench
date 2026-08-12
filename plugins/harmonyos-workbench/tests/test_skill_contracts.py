@@ -183,6 +183,15 @@ class SkillContractTest(unittest.TestCase):
         failures = module.version_findings(metadata, previous_code="120")
         self.assertEqual(failures[0][0], "version_code_not_incremented")
 
+    def test_design_motion_contract_covers_scroll_boundary_and_refresh(self) -> None:
+        motion = (PLUGIN_ROOT / "skills/harmonyos-design/references/MOTION.md").read_text(encoding="utf-8")
+        delivery = (PLUGIN_ROOT / "skills/harmonyos-design/references/DELIVERY-LOOP.md").read_text(encoding="utf-8")
+        vocabulary = (PLUGIN_ROOT / "skills/harmonyos-motion/references/VOCABULARY.md").read_text(encoding="utf-8")
+        for value in ("边界回弹", "下拉刷新", "refreshing", "防重入", "真机验收"):
+            self.assertIn(value, motion)
+        self.assertIn("阈值后释放", delivery)
+        self.assertIn("pull-to-refresh threshold", vocabulary)
+
 
 if __name__ == "__main__":
     unittest.main()
