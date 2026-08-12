@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import argparse
+import importlib.util
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -7,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
@@ -16,6 +19,10 @@ SCRIPT = (
 )
 TEST_RUNNER = PLUGIN_ROOT / "skills/harmonyos-test/scripts/run_test_command.py"
 FIXTURE = PLUGIN_ROOT / "tests/fixtures/targets.json"
+SPEC = importlib.util.spec_from_file_location("harmonyos_targets_test_module", SCRIPT)
+assert SPEC and SPEC.loader
+TARGETS_MODULE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(TARGETS_MODULE)
 
 
 class TargetsCliTest(unittest.TestCase):
@@ -257,6 +264,35 @@ class TargetsCliTest(unittest.TestCase):
         self.assertEqual(payload["schema"], "harmonyos.workbench.target-bridge/v1")
         self.assertEqual(payload["role"], "primary")
         self.assertTrue(payload["runtimeSerial"])
+
+    def test_direct_physical_install_does_not_require_or_create_a_lease(self) -> None:
+        artifact = self.project_a / "entry.hap"
+        artifact.write_bytes(b"test-hap")
+        evidence = self.project_a / "artifacts" / "install.json"
+        args = argparse.Namespace(
+            project=str(self.project_a),
+            project_id="",
+            target_serial="usb:phone-1",
+            artifact=str(artifact),
+            evidence=str(evidence),
+        )
+        inventory = {
+            "fixture": False,
+            "hdc": "/fake/hdc",
+            "targets": [{"serial": "usb:phone-1", "status": "Connected"}],
+        }
+        completed = subprocess.CompletedProcess(
+            args=["hdc"], returncode=0, stdout="installed", stderr=""
+        )
+        with patch.object(TARGETS_MODULE, "inventory", return_value=inventory), patch.object(
+            TARGETS_MODULE, "run", return_value=completed
+        ) as run:
+            self.assertEqual(TARGETS_MODULE.install_physical(args), 0)
+        self.assertEqual(run.call_args.args[0][1:4], ["-t", "usb:phone-1", "install"])
+        record = json.loads(evidence.read_text(encoding="utf-8"))
+        self.assertEqual(record["inputs"]["operation"], "install_only")
+        self.assertEqual(record["target"]["leaseExpiresAt"], "")
+        self.assertNotIn("usb:phone-1", evidence.read_text(encoding="utf-8"))
 
     def test_different_specifications_require_narrowing(self) -> None:
         result = self.run_cli(

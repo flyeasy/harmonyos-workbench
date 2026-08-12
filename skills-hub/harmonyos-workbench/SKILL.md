@@ -23,7 +23,7 @@ permissions:
 
 ## Route
 
-按需要推进：`design → capabilities → ai (optional) → develop → build → targets → test → review → release`；这是依赖路由，不是每次编辑必走的串行清单。先选 `host-fast / build-slice / device-slice / candidate` 最小车道，只有设备车道才租赁目标，只有候选/交接边界才跑发布门禁；`motion` 仅命名动效现象。任何安装、截图或 UI 自动化前先进入 Targets。
+按需要推进：`design → capabilities → ai (optional) → develop → build → targets → test → review → release`；这是依赖路由，不是每次编辑必走的串行清单。先选 `host-fast / build-slice / device-slice / candidate` 最小车道，只有调试、启动、截图或 UI 验证的设备车道才租赁目标，只有候选/交接边界才跑发布门禁；用户明确要求的真机仅安装使用精确已连接 serial 直接安装、不占用目标且不构成运行验证；`motion` 仅命名动效现象。任何安装、截图或 UI 自动化前先进入 Targets。
 
 开始时：读取项目约束与账本，写目标/范围外/预期信号/验证/退出条件，只激活一个主阶段。需要 Kit、AGC、权益或 ACL 先建能力账本；涉及 Agent、系统 AI、端侧/云模型、RAG 或联网增强再进入 AI。
 

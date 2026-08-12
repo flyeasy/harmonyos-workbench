@@ -22,7 +22,7 @@ description: 端到端编排 HarmonyOS、OpenHarmony 与 ArkTS/ArkUI 产品开�
 | 09 发布 | `harmonyos-release` | 签名 APP 与 AppGallery 门禁结果 |
 | 辅助能力 | `harmonyos-motion` | 动效术语、诊断分支与 ArkUI 检索方向 |
 
-设计审查可以在实现前后重复；目标阶段必须先于任何设备安装、截图或 UI 自动化。
+设计审查可以在实现前后重复；目标阶段必须先于任何设备安装、截图或 UI 自动化。用户明确要求的真机“仅安装”不进入调试车道，不申请独占租约，也不声称运行结果。
 
 ## 统一阶段契约
 
@@ -36,7 +36,7 @@ description: 端到端编排 HarmonyOS、OpenHarmony 与 ArkTS/ArkUI 产品开�
 2. 在实现前标记交付画像：`standard`、`content_backed`、`regulated_content`、`external_integration`、`companion_hardware` 可叠加；只记录本次确实涉及的画像。
 3. 把请求拆成阶段清单；只激活当前主阶段。
 4. 写最小任务契约：目标、范围外、预期信号、验证方法、退出条件。
-5. 需要设备时，先用 `harmonyos-targets` 建立项目角色绑定；多规格范围在开发前建立手机/平板/折叠屏需求—绑定—验证矩阵。只在 `device-slice` 即将操作设备时获取租约。
+5. 需要调试、运行、截图或验证设备时，先用 `harmonyos-targets` 建立项目角色绑定；多规格范围在开发前建立手机/平板/折叠屏需求—绑定—验证矩阵。只在 `device-slice` 即将进行这些独占操作时获取租约；用户明确要求的真机仅安装使用精确 serial 直达安装。
 6. 按 `设计 → 能力 → AI（按需）→ 开发 → 构建 → 目标 → 测试 → 审查 → 发布` 推进所需阶段；这是依赖路由，不是每次编辑都必须串行走完的清单。按 `host-fast / build-slice / device-slice / candidate` 选择本轮最小验证车道，设备和发布只在其边界进入。
    - 任务需要 Kit、AGC 服务、权益、商户/资格或 ACL 时，先建能力账本；
    - 任务涉及 Agent、Skill、系统 AI、端侧模型、云模型或 AI 联网增强时，再进入 AI 阶段；

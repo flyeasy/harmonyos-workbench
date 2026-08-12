@@ -24,7 +24,7 @@ Bindings survive lease release so a project selects the same simulator next time
 
 ## Lease model
 
-Acquire a time-limited exclusive lease before start, stop, install, launch, screenshot or UI automation. File locking serializes registry updates. Heartbeat by acquiring again for the same project. Release the lease after the active device session; do not unbind unless intentionally reassigning the project.
+Acquire a time-limited exclusive lease before start, stop, launch, screenshot, UI automation, debugging or runtime evidence collection. File locking serializes registry updates. A user-requested physical-device **install-only** action may skip the lease only when it names one exact connected serial and performs only `hdc install`: it must not launch, inspect, screenshot, create a bridge, or claim runtime verification. Heartbeat by acquiring again for the same project. Release the lease after the active device session; do not unbind unless intentionally reassigning the project.
 
 An expired lease is not permission to steal a target that remains bound to another project.
 

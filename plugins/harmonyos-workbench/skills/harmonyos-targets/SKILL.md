@@ -10,10 +10,10 @@ description: 为 HarmonyOS 项目发现、分配、固定、租赁和验证物�
 ## Phase contract
 
 1. **Input**：项目根、目标角色、设备类型/API/屏幕要求和已有绑定。
-2. **Preflight**：检查实例配置、全局绑定、租约、HDC 端口和规格漂移。
-3. **Execute**：分配或解析目标，获取租约，再启动、安装、运行或采证。
+2. **Preflight**：按操作检查精确设备身份；调试类操作再检查绑定、租约、端口和规格漂移。
+3. **Execute**：仅安装可直达精确真机；启动、调试、截图、UI 自动化或采证才获取租约。
 4. **Verify**：核对精确 serial、运行状态、指纹和截图几何。
-5. **Evidence**：记录项目 ID、角色、target key、租约、规格和产物哈希。
+5. **Evidence**：记录项目 ID、角色、target key、规格和产物哈希；调试/体验证据另记录租约。
 6. **Handoff**：把已验证目标交给 `harmonyos-test` 或 `harmonyos-review`。
 
 ## Selection and bridge
@@ -23,10 +23,11 @@ description: 为 HarmonyOS 项目发现、分配、固定、租赁和验证物�
    - 已知目标就用 `bind` 指定精确 UUID/name；
    - 只知道规格就用 `allocate`，必须给出设备类型、API、屏幕或名称约束；
    - 候选跨越不同规格时停止，不猜“主模拟器”。
-3. 在即将进行安装、运行、截图或 UI 验证的 `device-slice` 才运行 `acquire` 获取项目排他租约；主机循环可保留需求矩阵和持久绑定，但不抢占模拟器。
-4. 启动前运行项目 `doctor`；UI 自动化前运行 `preflight`。全局 `doctor` 只用于维护模拟器池。
-5. 所有安装、启动、截图和点击只使用绑定解析出的 serial。
-6. 完成本轮设备操作后运行 `release`；绑定仍保留供下次固定选择。
+3. 用户明确要求“推送/安装到真实手机”且不要求启动、调试、截图或验证时，用 `install --target-serial <exact-connected-serial> --artifact <hap>` 直接安装：不申请租约、不绑定、不启动应用。它只证明安装命令结果，不能写成运行或体验通过。
+4. 即将启动、调试、截图、UI 验证或采证时，才在 `device-slice` 运行 `acquire` 获取项目排他租约；主机循环可保留需求矩阵和持久绑定，但不抢占模拟器。
+5. 启动前运行项目 `doctor`；UI 自动化前运行 `preflight`。全局 `doctor` 只用于维护模拟器池。
+6. 调试类安装、启动、截图和点击只使用绑定解析出的 serial；直接安装只接受用户指定且当前已连接的精确真机 serial，不猜第一个设备。
+7. 完成调试会话后运行 `release`；绑定仍保留供下次固定选择。
 
 ## 项目脚本的目标桥接
 

@@ -729,6 +729,67 @@ def deploy(
     return 0 if passed else 1
 
 
+def install_physical(args: argparse.Namespace) -> int:
+    """Install a HAP on one explicitly named physical device without a lease.
+
+    This is a delivery action only. It never starts the app, captures a screen,
+    creates a target bridge, or establishes a runtime result. Those operations
+    can interfere with debugging and must use the leased deploy/preflight path.
+    """
+    root, project_id = project_context(args)
+    inv = inventory(args)
+    if inv["fixture"] or not inv["hdc"]:
+        raise RegistryError("HDC is unavailable; direct physical install cannot run from an inventory fixture")
+    serial = str(args.target_serial or "")
+    if serial not in connected_serials(inv["targets"]):
+        raise RegistryError("the exact physical target is not connected")
+    artifact = Path(args.artifact).expanduser().resolve()
+    if not artifact.is_file() or artifact.stat().st_size == 0:
+        raise RegistryError(f"installable HAP not found: {artifact}")
+    installed = run([inv["hdc"], "-t", serial, "install", str(artifact)], timeout=180)
+    status = "passed" if installed.returncode == 0 else "failed"
+    checks = [
+        {"name": "exact_physical_target", "status": "passed"},
+        {"name": "install", "status": status},
+    ]
+    payload: dict[str, Any] = {
+        "status": status,
+        "project": str(root),
+        "projectId": project_id,
+        "operation": "install_only",
+        "target": serial,
+        "artifact": str(artifact),
+        "checks": checks,
+    }
+    if installed.returncode != 0:
+        payload["error"] = (installed.stderr or installed.stdout).strip()[-1000:]
+    if args.evidence:
+        record_path = Path(args.evidence).expanduser()
+        if not record_path.is_absolute():
+            record_path = root / record_path
+        physical_target = {"kind": "physical", "serial": serial, "name": serial}
+        record = build_record(
+            phase="targets",
+            project_id=project_id,
+            status=status,
+            inputs={"operation": "install_only", "artifact": evidence_path(artifact, root)},
+            outputs={},
+            checks=checks,
+            target=target_evidence(
+                project_id=project_id,
+                role="install_only",
+                target_key=target_key(physical_target),
+                runtime_serial=serial,
+                fingerprint_digest=fingerprint_digest(physical_target),
+                lease_expires_at="",
+            ),
+            next_phase="none",
+        )
+        payload["evidence"] = str(write_record(record_path, record))
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return 0 if status == "passed" else (installed.returncode or 1)
+
+
 def add_project_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--project", default=".")
     parser.add_argument("--project-id", default="")
@@ -844,6 +905,13 @@ def main() -> int:
     deploy_parser.add_argument("--snapshot-dir", default="")
     deploy_parser.add_argument("--evidence", default="")
     deploy_parser.add_argument("--skip-geometry", action="store_true")
+
+    install_parser = subparsers.add_parser("install")
+    install_parser.add_argument("--project", default=".")
+    install_parser.add_argument("--project-id", default="")
+    install_parser.add_argument("--target-serial", required=True)
+    install_parser.add_argument("--artifact", required=True)
+    install_parser.add_argument("--evidence", default="")
 
     args = parser.parse_args()
     store = store_from(args)
@@ -1217,6 +1285,9 @@ def main() -> int:
         if args.action == "deploy":
             values = preflight_data(args, require_geometry=not args.skip_geometry)
             return deploy(args, *values)
+
+        if args.action == "install":
+            return install_physical(args)
 
         root, project_id = project_context(args)
         inv = inventory(args)

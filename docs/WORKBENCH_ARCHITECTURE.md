@@ -84,7 +84,7 @@ Only repeated, safety-sensitive operations are scripts. Product decisions, visua
 ## Target and evidence invariants
 
 1. A project role maps to one stable target identity; a target is never implicitly shared across projects.
-2. A device operation requires a live lease and matching target fingerprint. Coordinate input requires a geometry preflight no older than ten minutes; a semantic-selector run may reuse matching evidence during its bounded active batch.
+2. Debugging, launching, screenshots, UI input and runtime evidence require a live lease and matching target fingerprint. A user-requested physical-device install-only operation may skip the lease only for one exact connected serial and `hdc install`; it cannot launch, inspect, capture or establish a runtime conclusion. Coordinate input requires a geometry preflight no older than ten minutes; a semantic-selector run may reuse matching evidence during its bounded active batch.
 3. A project harness receives the raw runtime serial only through a short-lived local target bridge; durable evidence contains hashes, not raw identifiers.
 4. Evidence uses `harmonyos.workbench.evidence/v2`, project-relative paths, an artifact hash where relevant, and no credentials, signing material, home path, hostname or raw serial.
 5. A release handoff records a Git commit and can require a clean worktree, clean diff and a project-local durable evidence root.
