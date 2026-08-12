@@ -4,6 +4,8 @@ import json
 import importlib.util
 from pathlib import Path
 import re
+import struct
+import tempfile
 import unittest
 
 
@@ -69,6 +71,7 @@ class SkillContractTest(unittest.TestCase):
             "integration-plan",
             "release",
             "signing-audit",
+            "listing-audit",
         ):
             self.assertIn(f'"{command}"', text)
 
@@ -114,6 +117,51 @@ class SkillContractTest(unittest.TestCase):
         )
         self.assertIn("Profile type does not match the requested signing kind", debug_errors)
         self.assertIn("debug Profile has no debug device information", debug_errors)
+
+    def test_listing_audit_enforces_opaque_icon_baseline(self) -> None:
+        script = PLUGIN_ROOT / "skills/harmonyos-release/scripts/harmony_listing_audit.py"
+        spec = importlib.util.spec_from_file_location("harmony_listing_audit", script)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        self.assertIsNotNone(spec.loader)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as directory:
+            icon = Path(directory) / "icon.png"
+            ihdr = struct.pack(">IIBBBBB", 1024, 1024, 8, 2, 0, 0, 0)
+            icon.write_bytes(
+                module.PNG_SIGNATURE
+                + struct.pack(">I", len(ihdr)) + b"IHDR" + ihdr + b"\0\0\0\0"
+                + struct.pack(">I", 0) + b"IEND" + b"\0\0\0\0"
+            )
+            self.assertEqual(module.icon_findings(module.icon_facts(icon)), [])
+            alpha_ihdr = struct.pack(">IIBBBBB", 1024, 1024, 8, 6, 0, 0, 0)
+            alpha_icon = Path(directory) / "alpha.png"
+            alpha_icon.write_bytes(
+                module.PNG_SIGNATURE
+                + struct.pack(">I", len(alpha_ihdr)) + b"IHDR" + alpha_ihdr + b"\0\0\0\0"
+                + struct.pack(">I", 0) + b"IEND" + b"\0\0\0\0"
+            )
+            self.assertIn(
+                "icon must not contain an alpha channel or transparency",
+                module.icon_findings(module.icon_facts(alpha_icon)),
+            )
+        listing, listing_errors = module.listing_facts(
+            {
+                "locales": {
+                    "zh-CN": {
+                        "appName": "示例",
+                        "oneLineIntroduction": "解决一个真实问题",
+                        "introduction": "只描述已验证的功能。",
+                        "privacyStatementUrl": "https://example.com/privacy",
+                        "privacyStatementVersion": "1.0",
+                        "privacyStatementReviewedAt": "2026-08-12",
+                        "screenshots": ["store/zh-CN/01.png"],
+                    }
+                }
+            }
+        )
+        self.assertEqual(listing_errors, [])
+        self.assertEqual(listing["locales"]["zh-CN"]["status"], "passed")
 
 
 if __name__ == "__main__":

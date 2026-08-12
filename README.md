@@ -34,7 +34,7 @@ HarmonyOS Workbench 用统一阶段契约、项目级目标绑定、排他租约
 | 目标管理 | `harmonyos-targets` | 模拟器/真机发现、绑定、租约、端口和几何门禁 |
 | 测试 | `harmonyos-test` | Local、Instrument、Hypium、ArkWeb 与专项测试证据 |
 | 审查 | `harmonyos-review` | 有证据的体验、适配、无障碍和性能发现 |
-| 发布 | `harmonyos-release` | 签名、Profile、仓库卫生与 AppGallery 预检 |
+| 发布 | `harmonyos-release` | 签名、Profile、商店素材、仓库卫生与 AppGallery 预检 |
 | 动效术语 | `harmonyos-motion` | 动效现象到术语、诊断分支和 ArkUI 能力映射 |
 
 ## 安装
@@ -137,6 +137,7 @@ python3 plugins/harmonyos-workbench/skills/harmonyos-targets/scripts/harmonyos_t
 - 测试输出会遮蔽常见密钥格式、用户主目录和项目绝对路径。
 - 插件不会替你执行商店发布、重置模拟器或删除设备数据；这些动作需要单独的明确授权。
 - P12、CSR、CER 与 `.p7b` Profile 只做本机只读一致性审计：不复制、不生成、不写入项目，也不会将路径、证书正文或密码写入证据。P12 公钥连续性仅在用户明确选择隐藏密码提示时检查。
+- 上架图标与商店文案只做本机预检：当前基线为 1024×1024 PNG、≤3 MiB、无透明通道；一行简介、完整介绍、截图和已审核隐私声明链接都有独立门禁。图标的预制圆角、可读性、文案真实性和素材权利仍要求人工复核。
 
 提交安全问题前请阅读 [SECURITY.md](SECURITY.md)。不要在公开 issue 中粘贴令牌、签名材料、设备序列号、真实项目路径或未脱敏日志。
 

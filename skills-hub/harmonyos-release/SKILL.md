@@ -1,6 +1,6 @@
 ---
 name: harmonyos-release
-description: 准备并校验 HarmonyOS AppGallery 发布候选。用于 release APP、签名/Profile、产物哈希、开放能力/权益/ACL 状态、AI 数据与评测交接、隐私、截图和发布交接；只在用户明确授权时执行商店提交。
+description: 准备并校验 HarmonyOS AppGallery 发布候选。用于 release APP、签名/Profile、产物哈希、图标/商店文案/隐私声明/截图素材、开放能力/权益/ACL 状态、AI 数据与评测交接和发布交接；只在用户明确授权时执行商店提交。
 version: 0.4.0
 category: deploy
 platforms:
@@ -31,17 +31,19 @@ permissions:
 4. 先核对 P12（私钥）、CSR（密钥请求）、CER（签发证书）和 `.p7b` Profile 的关系：P12/CSR/CER 只有在公钥连续性已证明时才可复用；Profile 必须按精确 Bundle/App ID、分发类型重新签发，不能跨应用复用。debug Profile 设备绑定，release Profile 不得含 debug device 信息。
 5. 使用 `harmonyos-build` 以项目专用 release product 生成 `app + release` 候选。`buildMode=release` 不是签名证明；product/signingConfig 与最终嵌入 Profile 是独立事实。
 6. 验证产物非空、SHA-256、签名、嵌入 Profile、期望 bundle、release 类型和 distribution。
-7. 运行项目专用的隐私、元数据、截图和线上就绪门禁。
+7. 在 candidate/handoff 边界检查商店素材：每个语言的应用名、一句话简介、完整介绍、截图、已审核的 HTTPS 隐私声明 URL/版本，以及源图标。当前基线为 1024×1024 PNG、≤3 MiB、无 alpha/透明通道、无预制圆角；提交前仍以目标 AGC 控制台规则复核。生成图标必须保留来源与权利依据并人工查看，不能仅凭格式检查通过。
+8. 运行项目专用的隐私、元数据、截图和线上就绪门禁。
    - 开放能力、权益、ACL 和付费服务要求 `harmonyos-capabilities` 账本达到 `release_verified` 或明确阻塞；
    - AI 功能要求 `harmonyos-ai` 的数据、凭据、安全、评测和降级交接。
-8. 在完整交接处停止。只有用户明确要求后才上传包、编辑 AppGallery 列表或点击提交。
-9. 提交后再核对平台回执；没有回执时不能说 published。
+9. 在完整交接处停止。只有用户明确要求后才上传包、编辑 AppGallery 列表或点击提交。
+10. 提交后再核对平台回执；没有回执时不能说 published。
 
 ## Release invariants
 
 - 最终 AppGallery 包是签名 `.app`，不是模块 `.hap`。
 - `buildMode=release`、目录名或打包成功都不是签名事实；以 `hap-sign-tool` 对精确 `.app` 的验证为准。
 - P12/CSR/CER 可代表同一开发者身份，但 `.p7b` Profile 是应用授权，不可因同一证书而跨 Bundle/App ID 复用。
+- 商店文案和隐私声明是发布事实，不是占位符：各语言都要有真实的一句话简介、完整介绍、截图和已审核 HTTPS 隐私声明。图标通过尺寸/格式检查后仍需人工确认无预制圆角、可读性与权利。
 - `build-profile.json5`、keystore、Profile、证书、密码材料、API key 和凭据不进入版本控制，除非项目政策明确允许且有安全存储。
 - 不在报告中暴露签名材料路径、密码值、设备 serial 或私有项目路径。
 - candidate ready 必须有签名/Profile 核验、期望 bundle、release/distribution、产物哈希和隐私扫描。

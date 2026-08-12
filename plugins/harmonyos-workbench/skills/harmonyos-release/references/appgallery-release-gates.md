@@ -58,7 +58,7 @@ The ledger must distinguish internal-preview assets from user-visible/publishabl
 
 - Run local and device regressions appropriate to the change.
 - Run release archive privacy scanning.
-- Confirm public privacy policy, permission purposes, screenshots, descriptions, reviewer notes, and test account instructions.
+- Confirm public privacy policy, permission purposes, screenshots, descriptions, reviewer notes, and test account instructions. Validate the source icon and listing field-presence with `listing-audit`; inspect icon shape/readability and copy truthfulness separately.
 - Verify production endpoints read-only when the release depends on them.
 
 ## Capabilities and AI

@@ -19,7 +19,7 @@ description: 端到端编排 HarmonyOS、OpenHarmony 与 ArkTS/ArkUI 产品开�
 | 06 目标 | `harmonyos-targets` | 项目绑定、排他租约和规格已验证的目标 |
 | 07 测试 | `harmonyos-test` | 分层测试结果与可复核证据 |
 | 08 审查 | `harmonyos-review` | 有证据的发现、修复计划和结论 |
-| 09 发布 | `harmonyos-release` | 签名 APP、四件套一致性与 AppGallery 门禁结果 |
+| 09 发布 | `harmonyos-release` | 签名 APP、四件套、商店素材与 AppGallery 门禁结果 |
 | 辅助能力 | `harmonyos-motion` | 动效术语、诊断分支与 ArkUI 检索方向 |
 
 设计审查可以在实现前后重复；目标阶段必须先于任何设备安装、截图或 UI 自动化。用户明确要求的真机“仅安装”不进入调试车道，不申请独占租约，也不声称运行结果。
