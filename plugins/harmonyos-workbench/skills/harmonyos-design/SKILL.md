@@ -1,6 +1,6 @@
 ---
 name: harmonyos-design
-description: 设计、重构、实现或改进 HarmonyOS、OpenHarmony 与 ArkUI 产品界面。用于从需求建立设计基线，把交互方案落到 ArkTS/ArkUI，处理导航、跨手机/平板/折叠屏/PC 适配、多输入、状态机、异步真实性、生命周期、动效、无障碍、性能、WebView/IME 几何与设备验证。纯审查使用 harmonyos-review；只命名动效使用 harmonyos-motion；非视觉业务功能使用 harmonyos-develop。
+description: 设计、重构、实现或改进 HarmonyOS、OpenHarmony 与 ArkUI 产品界面和应用内视觉身份。用于从需求建立设计基线，把交互方案落到 ArkTS/ArkUI，处理应用内设置/功能图标、VI、导航、跨手机/平板/折叠屏/PC 适配、多输入、状态机、异步真实性、生命周期、动效、无障碍、性能、WebView/IME 几何与设备验证。系统/商店图标与上架素材使用 harmonyos-release；纯审查使用 harmonyos-review；只命名动效使用 harmonyos-motion；非视觉业务功能使用 harmonyos-develop。
 ---
 
 <!-- Modified from dososo/HarmonyOS-Design commit 205afcbf1d8170239477a98a8472089d4ab7b86c for HarmonyOS Workbench. -->
@@ -31,6 +31,7 @@ description: 设计、重构、实现或改进 HarmonyOS、OpenHarmony 与 ArkUI
 - 适配按窗口、输入、距离和任务改变导航/密度/分栏，不做等比缩放；safe area、IME 与 WebView/远端几何只由一个层级处理。
 - 优先系统控件和语义；自定义不削弱返回、滚动、焦点、按下、禁用或辅助工具。
 - 同一语义复用状态契约、组件和 Token；动态集合使用稳定身份。
+- 先区分系统-facing 应用图标与应用内图标/VI：前者服从发布平台导出规则，后者按实际界面允许透明、去背景或矢量化。不得把商店图标的无透明通道规则机械套到设置页、功能图标或品牌插画。
 
 ## Load detail only when needed
 
@@ -41,6 +42,7 @@ description: 设计、重构、实现或改进 HarmonyOS、OpenHarmony 与 ArkUI
 - ArkTS/ArkUI 映射：[references/ARKUI-MAPPING.md](references/ARKUI-MAPPING.md)
 - 无障碍：[references/ACCESSIBILITY.md](references/ACCESSIBILITY.md)
 - 从编辑到设备证据的循环：[references/DELIVERY-LOOP.md](references/DELIVERY-LOOP.md)
+- 图标、VI、透明与多导出资产：[references/VISUAL-IDENTITY.md](references/VISUAL-IDENTITY.md)
 
 按任务读取一个或两个文件，不把参考清单整批重述为实现规则。官方能力随 SDK 变化时，以当次目标 SDK、编译和设备行为为准。
 

@@ -163,6 +163,26 @@ class SkillContractTest(unittest.TestCase):
         self.assertEqual(listing_errors, [])
         self.assertEqual(listing["locales"]["zh-CN"]["status"], "passed")
 
+    def test_release_version_gate_requires_explicit_monotonicity(self) -> None:
+        script = PLUGIN_ROOT / "skills/harmonyos-release/scripts/harmony_release_preflight.py"
+        spec = importlib.util.spec_from_file_location("harmony_release_preflight", script)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        self.assertIsNotNone(spec.loader)
+        spec.loader.exec_module(module)
+        metadata = {"versionName": "1.2.0", "versionCode": "120"}
+        self.assertEqual(
+            module.version_findings(
+                metadata,
+                expected_name="1.2.0",
+                expected_code="120",
+                previous_code="119",
+            ),
+            [],
+        )
+        failures = module.version_findings(metadata, previous_code="120")
+        self.assertEqual(failures[0][0], "version_code_not_incremented")
+
 
 if __name__ == "__main__":
     unittest.main()

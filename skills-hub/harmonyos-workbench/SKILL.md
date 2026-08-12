@@ -30,6 +30,7 @@ permissions:
 标记适用画像：
 
 - `content_backed`：来源/授权、人工审核、设备体验与 `publishEligible`；
+- `promotion_campaign`：候选版本绑定的主张账本、图文/视频来源到渲染映射和公开链接状态；渲染或草稿不等于已发布；
 - `regulated_content`：允许/禁止表达、动态数据、分享/激励和人工复核；
 - `external_integration`：不含秘密的隔离矩阵，fixture 不等于真实互通；
 - `companion_hardware`：项目安全守卫、实体拓扑和用户确认。

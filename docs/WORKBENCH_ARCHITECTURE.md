@@ -18,7 +18,7 @@ It also avoids a fifth failure mode: treating every source edit as a release can
 | Layer | Skill | Owns | Does not own |
 | --- | --- | --- | --- |
 | Route | `harmonyos-workbench` | phase selection, task ledger, delivery profile, completion challenge | implementation details of a phase |
-| Product UI | `harmonyos-design` | UI task contract, state/interaction baseline, adaptation decision | audit verdicts or non-visual business logic |
+| Product UI | `harmonyos-design` | UI task contract, in-app icon/VI, state/interaction baseline, adaptation decision | store icon export, audit verdicts or non-visual business logic |
 | UI terminology | `harmonyos-motion` | name a motion/interaction symptom and route it | design review or code changes |
 | Platform access | `harmonyos-capabilities` | capability, entitlement, ACL and privacy ledger | AI architecture or business implementation |
 | AI | `harmonyos-ai` | AI-layer choice, data/safety/evaluation contract | console approval or general app logic |
@@ -27,7 +27,7 @@ It also avoids a fifth failure mode: treating every source edit as a release can
 | Target control | `harmonyos-targets` | fixed device identity, lease, HDC port, geometry, local bridge | companion-board flash or physical movement |
 | Test | `harmonyos-test` | layered execution, test evidence, external integration readiness | UX verdict or store submission |
 | Review | `harmonyos-review` | evidence-based findings and acceptance verdict | redesign or bulk fixes |
-| Release | `harmonyos-release` | signing quartet, store listing/icon consistency, signed APP candidate, reproducibility and release gates | store submission without explicit user approval |
+| Release | `harmonyos-release` | version plan, signing quartet, store/promotion assets, signed APP candidate, reproducibility and release gates | store/social publication without explicit user approval |
 
 The eleven skills intentionally remain separate. Their trigger surfaces and authority differ enough that merging them would make routing less accurate and force unrelated instructions into the same context.
 
@@ -53,6 +53,7 @@ A workbench task starts as `standard` and may add any of these profiles:
 | `regulated_content` | business-boundary ledger: allowed/prohibited claims/actions, dynamic-data and incentive limits, content-update review | disclaimer text cannot legalize an out-of-bound feature |
 | `external_integration` | redacted integration matrix: variable names, read/write class, isolation confirmation, evidence mode | configured or fixture-only is not runtime verified |
 | `companion_hardware` | hardware topology and project-specific safety guard | the HarmonyOS target lease does not authorize SWD, flashing, or physical changes |
+| `promotion_campaign` | claim ledger, copy/image/video/Remotion source-to-render map, public-link state | a rendered asset or draft post is not publication evidence |
 
 Profiles add gates rather than new skills. This avoids proliferating narrowly named skills while preserving the workflows that caused real release failures.
 
@@ -93,6 +94,8 @@ Only repeated, safety-sensitive operations are scripts. Product decisions, visua
 6. `buildMode`, product/signingConfig, artifact type, and embedded Profile are separate release facts. `buildMode=release` cannot promote an unsigned HAP/APP to a candidate.
 7. Release P12/CSR/CER are one signing identity only after public-key continuity is checked; a `.p7b` Profile remains app- and distribution-specific. Debug Profiles are device-bound and never stand in for release Profiles.
 8. Store listing copy and source icon are candidate facts: the deterministic baseline checks PNG size/dimensions/opacity and listing field presence, while human review owns visual shape, copy truthfulness, privacy content and asset rights.
+9. A system-facing icon has a dedicated opaque export contract. In-app iconography and VI remain design assets and may use transparent/vector/background-free formats where appropriate; the two roles must not share a blind export rule.
+10. Version name/code, public claims, QR/link assets and promotion renders all bind to one candidate. A platform-posting action remains outside the release skill until the user explicitly authorizes it.
 
 ## External-service safety model
 

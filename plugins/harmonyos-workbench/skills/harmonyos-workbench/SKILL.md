@@ -11,7 +11,7 @@ description: 端到端编排 HarmonyOS、OpenHarmony 与 ArkTS/ArkUI 产品开�
 
 | 阶段 | Skill | 主要产物 |
 | --- | --- | --- |
-| 01 设计 | `harmonyos-design` | 任务、状态、导航、适配与验收基线 |
+| 01 设计 | `harmonyos-design` | 任务、状态、导航、适配、应用内图标/VI 与验收基线 |
 | 02 能力 | `harmonyos-capabilities` | 开放能力、权益、ACL、凭据和隐私账本 |
 | 03 AI（按需） | `harmonyos-ai` | AI 能力层选型、数据/安全边界和效果评测契约 |
 | 04 开发 | `harmonyos-develop` | ArkTS/ArkUI 与平台能力实现 |
@@ -19,7 +19,7 @@ description: 端到端编排 HarmonyOS、OpenHarmony 与 ArkTS/ArkUI 产品开�
 | 06 目标 | `harmonyos-targets` | 项目绑定、排他租约和规格已验证的目标 |
 | 07 测试 | `harmonyos-test` | 分层测试结果与可复核证据 |
 | 08 审查 | `harmonyos-review` | 有证据的发现、修复计划和结论 |
-| 09 发布 | `harmonyos-release` | 签名 APP、四件套、商店素材与 AppGallery 门禁结果 |
+| 09 发布 | `harmonyos-release` | 签名 APP、版本、四件套、商店素材和推广交付物门禁结果 |
 | 辅助能力 | `harmonyos-motion` | 动效术语、诊断分支与 ArkUI 检索方向 |
 
 设计审查可以在实现前后重复；目标阶段必须先于任何设备安装、截图或 UI 自动化。用户明确要求的真机“仅安装”不进入调试车道，不申请独占租约，也不声称运行结果。
@@ -33,7 +33,7 @@ description: 端到端编排 HarmonyOS、OpenHarmony 与 ArkTS/ArkUI 产品开�
 ## 端到端流程
 
 1. 定位项目根和最近的 `AGENTS.md`，读取项目账本。
-2. 在实现前标记交付画像：`standard`、`content_backed`、`regulated_content`、`external_integration`、`companion_hardware` 可叠加；只记录本次确实涉及的画像。
+2. 在实现前标记交付画像：`standard`、`content_backed`、`promotion_campaign`、`regulated_content`、`external_integration`、`companion_hardware` 可叠加；只记录本次确实涉及的画像。
 3. 把请求拆成阶段清单；只激活当前主阶段。
 4. 写最小任务契约：目标、范围外、预期信号、验证方法、退出条件。
 5. 需要调试、运行、截图或验证设备时，先用 `harmonyos-targets` 建立项目角色绑定；多规格范围在开发前建立手机/平板/折叠屏需求—绑定—验证矩阵。只在 `device-slice` 即将进行这些独占操作时获取租约；用户明确要求的真机仅安装使用精确 serial 直达安装。

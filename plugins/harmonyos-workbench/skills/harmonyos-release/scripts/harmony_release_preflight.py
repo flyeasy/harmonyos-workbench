@@ -75,6 +75,33 @@ def evidence_durability(root: Path, location: Path) -> dict[str, object]:
         return {"status": "failed", "reason": "ephemeral_or_home_path_in_evidence", "files": files, "temporaryRefs": temporary_refs, "path": relative.as_posix()}
     return {"status": "passed", "reason": "", "files": files, "temporaryRefs": 0, "path": relative.as_posix()}
 
+
+def version_findings(
+    metadata: dict[str, str],
+    *,
+    expected_name: str = "",
+    expected_code: str = "",
+    previous_code: str = "",
+) -> list[tuple[str, str]]:
+    """Validate only explicit version expectations; never guess a store's history."""
+    findings: list[tuple[str, str]] = []
+    current_name = metadata.get("versionName", "")
+    current_code = metadata.get("versionCode", "")
+    if expected_name and current_name != expected_name:
+        findings.append(("version_name_mismatch", "AppScope versionName does not match the expected release version"))
+    if expected_code and current_code != expected_code:
+        findings.append(("version_code_mismatch", "AppScope versionCode does not match the expected release version"))
+    if previous_code:
+        try:
+            previous = int(previous_code)
+            current = int(current_code)
+        except ValueError:
+            findings.append(("version_code_not_numeric", "previous and current versionCode must be numeric for monotonicity checking"))
+        else:
+            if current <= previous:
+                findings.append(("version_code_not_incremented", "versionCode must be greater than the explicitly supplied previous release versionCode"))
+    return findings
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project", default=".")
@@ -83,6 +110,9 @@ def main() -> int:
     parser.add_argument("--sign-tool", default="")
     parser.add_argument("--java", default="")
     parser.add_argument("--expected-bundle", default="")
+    parser.add_argument("--expected-version-name", default="")
+    parser.add_argument("--expected-version-code", default="")
+    parser.add_argument("--previous-version-code", default="")
     parser.add_argument("--expected-distribution", default="app_gallery")
     parser.add_argument("--verify", action="store_true")
     parser.add_argument("--strict", action="store_true")
@@ -160,6 +190,13 @@ def main() -> int:
         finding("warning", "release_artifact_missing", "no non-empty release APP artifact was found")
 
     metadata = app_metadata(root)
+    for code, message in version_findings(
+        metadata,
+        expected_name=args.expected_version_name,
+        expected_code=args.expected_version_code,
+        previous_code=args.previous_version_code,
+    ):
+        finding("error", code, message)
     expected_bundle = args.expected_bundle or metadata.get("bundleName", "")
     verification: dict[str, object] = {"status": "skipped"}
     if args.verify:
@@ -214,6 +251,9 @@ def main() -> int:
                 "strict": args.strict,
                 "expectedBundle": expected_bundle,
                 "expectedDistribution": args.expected_distribution,
+                "expectedVersionName": args.expected_version_name,
+                "expectedVersionCode": args.expected_version_code,
+                "previousVersionCode": args.previous_version_code,
             },
             outputs={
                 "metadata": metadata,

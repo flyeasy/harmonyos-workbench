@@ -1,6 +1,6 @@
 ---
 name: harmonyos-release
-description: 准备并校验 HarmonyOS AppGallery 发布候选。用于 release APP、签名/Profile、产物哈希、图标/商店文案/隐私声明/截图素材、开放能力/权益/ACL 状态、AI 数据与评测交接和发布交接；只在用户明确授权时执行商店提交。
+description: 准备并校验 HarmonyOS AppGallery 发布候选与发布推广交付物。用于 release APP、版本号、签名/Profile、产物哈希、图标/商店文案/隐私声明/截图素材、Xiaohongshu 图文、宣传脚本、Remotion 视频、开放能力/权益/ACL 状态、AI 数据与评测交接和发布交接；只在用户明确授权时执行商店提交或外部发布。
 version: 0.4.0
 category: deploy
 platforms:
@@ -31,12 +31,14 @@ permissions:
 4. 先核对 P12（私钥）、CSR（密钥请求）、CER（签发证书）和 `.p7b` Profile 的关系：P12/CSR/CER 只有在公钥连续性已证明时才可复用；Profile 必须按精确 Bundle/App ID、分发类型重新签发，不能跨应用复用。debug Profile 设备绑定，release Profile 不得含 debug device 信息。
 5. 使用 `harmonyos-build` 以项目专用 release product 生成 `app + release` 候选。`buildMode=release` 不是签名证明；product/signingConfig 与最终嵌入 Profile 是独立事实。
 6. 验证产物非空、SHA-256、签名、嵌入 Profile、期望 bundle、release 类型和 distribution。
-7. 在 candidate/handoff 边界检查商店素材：每个语言的应用名、一句话简介、完整介绍、截图、已审核的 HTTPS 隐私声明 URL/版本，以及源图标。当前基线为 1024×1024 PNG、≤3 MiB、无 alpha/透明通道、无预制圆角；提交前仍以目标 AGC 控制台规则复核。生成图标必须保留来源与权利依据并人工查看，不能仅凭格式检查通过。
-8. 运行项目专用的隐私、元数据、截图和线上就绪门禁。
+7. 在 candidate/handoff 边界设置期望 `versionName/versionCode` 与已知上一发布 `versionCode`，检查应用内配置精确匹配且 code 单调递增；不要猜测商店历史。
+8. 检查商店素材：每个语言的应用名、一句话简介、完整介绍、截图、已审核的 HTTPS 隐私声明 URL/版本，以及源图标。当前基线为 1024×1024 PNG、≤3 MiB、无 alpha/透明通道、无预制圆角；提交前仍以目标 AGC 控制台规则复核。系统/商店图标另有不透明导出；应用内设置、功能图标与 VI 可以按实际界面使用透明、去底或矢量资源，不能机械照搬。生成图标必须保留来源与权利依据并人工查看，不能仅凭格式检查通过。
+9. 若有小红书/宣传需求，产出标题、笔记正文、话题、封面与轮播图、安装入口、视频分镜/口播/字幕和 Remotion 渲染计划；每项主张都绑定当前候选版本与已验证事实。渲染成功不等于已发布，外部帖子或商店提交仍需明确授权。
+10. 运行项目专用的隐私、元数据、截图和线上就绪门禁。
    - 开放能力、权益、ACL 和付费服务要求 `harmonyos-capabilities` 账本达到 `release_verified` 或明确阻塞；
    - AI 功能要求 `harmonyos-ai` 的数据、凭据、安全、评测和降级交接。
-9. 在完整交接处停止。只有用户明确要求后才上传包、编辑 AppGallery 列表或点击提交。
-10. 提交后再核对平台回执；没有回执时不能说 published。
+11. 在完整交接处停止。只有用户明确要求后才上传包、编辑 AppGallery 列表、发布小红书或点击提交。
+12. 提交后再核对平台回执；没有回执时不能说 published。
 
 ## Release invariants
 
