@@ -10,7 +10,16 @@
 
 Typical module properties are `module=entry@default`, `product=debug|default`, and `buildMode=debug|release`. The value after `@` is the module target, not the product. Respect project documentation when names differ.
 
-`buildMode=debug` controls compilation, but the selected product/signingConfig controls whether the embedded Profile is debug or release. For DevEco Testing services that require a debug package, select the project's debug-signing product and verify the embedded Profile when uncertain.
+`buildMode` controls compilation, but the selected `product` → `signingConfig` chain controls whether the embedded Profile is debug, release, or absent. Treat these as separate axes:
+
+| Fact | Source of truth | Why it matters |
+| --- | --- | --- |
+| HAP vs APP | requested Hvigor task and emitted extension | only APP is an AppGallery upload candidate |
+| debug vs release compilation | `buildMode` | optimizations and compiler branch, not signing proof |
+| product/signingConfig | selected `product` and local `build-profile.json5` | determines the signing material selected by the project |
+| signed package/Profile | `hap-sign-tool.jar` verification | final proof of type, bundle, distribution and device binding |
+
+For DevEco Testing services that require a debug package, select the project's debug-signing product and verify the embedded Profile when uncertain. For a release candidate, create/use a dedicated release product mapped to a dedicated release `signingConfig`; do not mutate the debug/default configuration in place. Build an `app + release` with that product and verify the emitted package before using the word “signed”.
 
 ## Discovery order
 

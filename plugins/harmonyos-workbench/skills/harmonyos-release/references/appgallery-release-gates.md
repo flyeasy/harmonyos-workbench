@@ -8,6 +8,21 @@
 - Verify the APP and embedded Profile using the SDK `hap-sign-tool.jar`.
 - Confirm Profile `type=release`, expected bundle, intended distribution, and absence of debug device information.
 
+## Signing identity and Profile lifecycle
+
+Treat the signing quartet as four separate facts, never one reusable “release file”:
+
+| Material | Purpose | Reuse / gate |
+| --- | --- | --- |
+| P12 | local private signing key | private, encrypted and never committed; prove it matches the CSR/CER before reusing it |
+| CSR | public-key request for the local key | local identity evidence; CSR alone cannot reconstruct a P12 |
+| CER | certificate issued for the CSR key | may share the developer identity after public-key and validity checks |
+| `.p7b` Profile | app authorization and distribution binding | must be issued for the exact Bundle/App ID and intended distribution; do not reuse it across apps |
+
+Use a dedicated release product mapped to a dedicated release `signingConfig`; preserve the working debug/default configuration. A task with `buildMode=release` can still select an unsigned or debug-signing product, so verify the emitted package with `hap-sign-tool.jar`.
+
+Debug and release Profiles are intentionally different: a debug Profile is device-bound; a release Profile must be `type=release`, have the AppGallery distribution expected by the project, and contain no `debug-info`. Do not copy material between them. For a read-only local relationship check, use the complete plugin's `signing-audit` launcher; P12 verification is an explicit hidden-password prompt, never a command-line argument.
+
 ## Repository and secrets
 
 - Keep local signing configuration ignored.

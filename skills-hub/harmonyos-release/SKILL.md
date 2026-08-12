@@ -25,20 +25,23 @@ permissions:
 
 ## Workflow
 
-1. 读取项目发布规则，区分 `feature`（受影响快速检查）、`candidate`（包/签名和受影响门禁）与 `handoff`（公开材料和外部就绪），定义版本、bundle、product、签名期望、证据和明确的发布边界。
+1. 读取项目发布规则，区分 `feature`（受影响快速检查）、`candidate`（包/签名和受影响门禁）与 `handoff`（公开材料和外部就绪），定义版本、bundle、product、签名四件套状态、证据和明确的发布边界。
 2. 只在 candidate/handoff 边界做只读检查工作树、版本元数据、隐私文本、截图计划、外部服务状态和敏感文件跟踪情况。
 3. 解决相关错误；dirty worktree、缺失截图、未完成隐私文案和未验证外部服务按项目政策列为 warning 或 blocker。对未变化的外部/公开材料阻塞记录输入指纹与最近检查，只有依赖变化、交接或提交前才重跑完成审计。
-4. 使用 `harmonyos-build` 生成 `app + release` 候选。
-5. 验证产物非空、SHA-256、签名、嵌入 Profile、期望 bundle、release 类型和 distribution。
-6. 运行项目专用的隐私、元数据、截图和线上就绪门禁。
+4. 先核对 P12（私钥）、CSR（密钥请求）、CER（签发证书）和 `.p7b` Profile 的关系：P12/CSR/CER 只有在公钥连续性已证明时才可复用；Profile 必须按精确 Bundle/App ID、分发类型重新签发，不能跨应用复用。debug Profile 设备绑定，release Profile 不得含 debug device 信息。
+5. 使用 `harmonyos-build` 以项目专用 release product 生成 `app + release` 候选。`buildMode=release` 不是签名证明；product/signingConfig 与最终嵌入 Profile 是独立事实。
+6. 验证产物非空、SHA-256、签名、嵌入 Profile、期望 bundle、release 类型和 distribution。
+7. 运行项目专用的隐私、元数据、截图和线上就绪门禁。
    - 开放能力、权益、ACL 和付费服务要求 `harmonyos-capabilities` 账本达到 `release_verified` 或明确阻塞；
    - AI 功能要求 `harmonyos-ai` 的数据、凭据、安全、评测和降级交接。
-7. 在完整交接处停止。只有用户明确要求后才上传包、编辑 AppGallery 列表或点击提交。
-8. 提交后再核对平台回执；没有回执时不能说 published。
+8. 在完整交接处停止。只有用户明确要求后才上传包、编辑 AppGallery 列表或点击提交。
+9. 提交后再核对平台回执；没有回执时不能说 published。
 
 ## Release invariants
 
 - 最终 AppGallery 包是签名 `.app`，不是模块 `.hap`。
+- `buildMode=release`、目录名或打包成功都不是签名事实；以 `hap-sign-tool` 对精确 `.app` 的验证为准。
+- P12/CSR/CER 可代表同一开发者身份，但 `.p7b` Profile 是应用授权，不可因同一证书而跨 Bundle/App ID 复用。
 - `build-profile.json5`、keystore、Profile、证书、密码材料、API key 和凭据不进入版本控制，除非项目政策明确允许且有安全存储。
 - 不在报告中暴露签名材料路径、密码值、设备 serial 或私有项目路径。
 - candidate ready 必须有签名/Profile 核验、期望 bundle、release/distribution、产物哈希和隐私扫描。

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import importlib.util
 from pathlib import Path
 import re
 import unittest
@@ -67,6 +68,7 @@ class SkillContractTest(unittest.TestCase):
             "testing-inventory",
             "integration-plan",
             "release",
+            "signing-audit",
         ):
             self.assertIn(f'"{command}"', text)
 
@@ -76,6 +78,42 @@ class SkillContractTest(unittest.TestCase):
         )
         self.assertEqual(manifest["name"], "harmonyos-workbench")
         self.assertEqual(manifest["skills"], "./skills/")
+
+    def test_signing_audit_separates_debug_and_release_profile_rules(self) -> None:
+        script = PLUGIN_ROOT / "skills/harmonyos-release/scripts/harmony_signing_audit.py"
+        spec = importlib.util.spec_from_file_location("harmony_signing_audit", script)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        self.assertIsNotNone(spec.loader)
+        spec.loader.exec_module(module)
+        base = {
+            "verified": True,
+            "type": "release",
+            "bundle": "com.example.app",
+            "app_id": "123456789",
+            "distribution": "app_gallery",
+            "debug_info_present": False,
+            "distribution_certificate": "",
+        }
+        release_errors = module.profile_findings(
+            base,
+            kind="release",
+            expected_bundle="com.example.app",
+            expected_app_id="123456789",
+            expected_distribution="app_gallery",
+            identity_key_hash="identity",
+        )
+        self.assertEqual(release_errors, ["Profile does not contain one readable distribution certificate"])
+        debug_errors = module.profile_findings(
+            base,
+            kind="debug",
+            expected_bundle="com.example.app",
+            expected_app_id="",
+            expected_distribution="",
+            identity_key_hash="identity",
+        )
+        self.assertIn("Profile type does not match the requested signing kind", debug_errors)
+        self.assertIn("debug Profile has no debug device information", debug_errors)
 
 
 if __name__ == "__main__":

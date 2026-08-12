@@ -23,6 +23,8 @@ COMMANDS = {
     / "skills/harmonyos-test/scripts/harmony_integration_plan.py",
     "release": PLUGIN_ROOT
     / "skills/harmonyos-release/scripts/harmony_release_preflight.py",
+    "signing-audit": PLUGIN_ROOT
+    / "skills/harmonyos-release/scripts/harmony_signing_audit.py",
 }
 
 

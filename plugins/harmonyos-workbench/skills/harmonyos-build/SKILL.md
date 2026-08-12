@@ -18,7 +18,7 @@ description: 构建并校验 HarmonyOS、OpenHarmony 的 HAP 或 APP 产物。�
 
 1. Read the nearest `AGENTS.md` and project ledger.
 2. Resolve the plugin root from this Skill path. Never execute a project-relative `scripts/...`.
-3. Define the artifact (`hap` or `app`), build mode, product, module target, expected output, and verification signal.
+3. Define four independent facts: artifact (`hap` or `app`), build mode, product/signingConfig, and the expected embedded Profile. `buildMode=release` only controls compilation; it does not prove the selected product uses release signing or that the output is signed.
 4. Run the stable launcher in dry-run mode only when the project, product/module scope, or toolchain is unfamiliar or changed; reuse the recorded plan during one unchanged feature batch:
 
 ```bash
@@ -46,6 +46,7 @@ python3 <plugin-root>/scripts/harmonyos_workbench.py profile \
 - Use `app + release` for an AppGallery candidate. Never describe a HAP as the final AppGallery upload package.
 - Preserve the project's local signing setup. Do not print, copy, rewrite, or commit signing passwords or material.
 - Keep the module target and app product separate. For example, `module=entry@default` can be built with `product=debug`.
+- For a release candidate, explicitly select the project's release product (normally one mapped to a dedicated release `signingConfig`) and then verify the emitted `.app`; a `default` product and a release compiler mode can still yield an unsigned package.
 
 ## Guardrails
 
@@ -53,6 +54,7 @@ python3 <plugin-root>/scripts/harmonyos_workbench.py profile \
 - Prefer the project's documented Hvigor version over DevEco Studio's bundled version when they differ.
 - Do not clean the project unless incremental output is demonstrably stale and the user authorized a clean build.
 - Do not infer a successful build from exit code alone; require an artifact and hash.
+- Do not infer a signed package from `--mode release`, its directory, or filename; inspect the actual APP/HAP Profile when the signing result matters.
 - Treat release builds as local packaging, not publication.
 
 Read [references/build-workflow.md](references/build-workflow.md) when choosing Hvigor tasks or diagnosing discovery failures.

@@ -24,7 +24,7 @@ permissions:
 ## Workflow
 
 1. 读取最近的 `AGENTS.md`、项目文档、`build-profile.json5` 和模块配置。
-2. 定义 artifact（`hap` 或 `app`）、mode、product、module target、期望输出和完成信号。
+2. 定义 artifact（`hap` 或 `app`）、mode、product、module target、期望输出和完成信号。`buildMode=release` 只表示编译分支；product 到 signingConfig 的映射和嵌入 Profile 才能证明签名。
 3. 优先使用项目记录的 Hvigor wrapper 与版本；若不存在，再发现 DevEco Studio/SDK 中兼容的 Hvigor。
 4. 项目、product/module scope 或 toolchain 陌生/变更时先列出或打印任务计划，不直接 clean；同一未变功能批次复用该计划。
 5. 只运行所需任务：`host-fast` 不因是 HarmonyOS 项目就要求 HAP，`build-slice` 对一个连贯功能批次构建一份 debug HAP，`app + release` 留给候选边界；保留完整退出状态和关键诊断。
@@ -38,10 +38,12 @@ permissions:
 - 只有明确需要已签名模块产物时才使用 `hap + release`。
 - AppGallery 候选使用 `app + release`；不要把 HAP 描述成最终上传包。
 - module target 与 app product 分开处理，例如 `module=entry@default` 可以搭配 `product=debug`。
+- 发布候选必须显式选择项目专用 release product，再验证实际 `.app`；`default` product 加 release 编译模式仍可能得到 unsigned 包。
 
 ## Guardrails
 
 - 不根据退出码单独判断成功；必须有非空产物和哈希。
+- 不根据 `--mode release`、目录或文件名判断已签名；签名结论来自实际 APP/HAP 的 Profile 验证。
 - 不在未证实缓存陈旧、且用户未授权时 clean。
 - 保留项目本地签名设置；不要打印、复制、改写或提交密码、keystore、Profile 或证书。
 - release 构建只是本地打包，不代表候选已通过，也不代表已提交商店。

@@ -7,7 +7,7 @@ description: 准备并校验 HarmonyOS AppGallery 发布候选。用于 release 
 
 ## Phase contract
 
-1. **Input**：项目根、版本、bundle、product、签名期望和发布边界。
+1. **Input**：项目根、版本、bundle、product、签名期望、四件套状态和发布边界。
 2. **Preflight**：只读检查版本控制、签名材料、隐私、能力账本、AI 交接和候选产物。
 3. **Execute**：调用 `harmonyos-build` 生成 release APP；不自动提交商店。
 4. **Verify**：校验 APP、SHA-256、签名、Profile、bundle 和 distribution。
@@ -25,14 +25,27 @@ python3 <plugin-root>/scripts/harmonyos_workbench.py release \
 ```
 
 3. Resolve every relevant error before building. Treat dirty worktree, missing screenshots, unfinished privacy text, stale/temporary evidence and unverified external services as named warnings or blockers according to project policy. Cache an unchanged external/public-material blocker with its input fingerprint and last check; only re-run that completion gate when its inputs change, at handoff, or before submission. A candidate that will be handed off or tagged must point to a Git commit; use the strict clean-worktree policy when the project requires reproducibility.
-4. Use `harmonyos-build` with `--artifact app --mode release` to generate the candidate.
-5. Run preflight again with `--artifact ... --verify --expected-bundle ...`. Preserve the SHA-256 and verified Profile facts.
-6. Run project-specific privacy, metadata, screenshot, and live-readiness gates. When the app uses open capabilities, entitlements, ACL or paid services, require the `harmonyos-capabilities` ledger to reach `release_verified` or name the blocker. When it uses AI, require the `harmonyos-ai` data, credential, safety, evaluation and fallback handoff.
-7. Stop at a complete handoff unless the user explicitly asks to submit. Uploading a package, editing an AppGallery listing, or clicking submit is an external publication action and requires action-time confirmation.
+4. At a signing setup or candidate boundary, audit the local P12/CSR/CER/Profile quartet before changing a project configuration. This is read-only and does not print material paths or values:
+
+```bash
+python3 <plugin-root>/scripts/harmonyos_workbench.py signing-audit \
+  --kind release --p12 /private/release.p12 --csr /private/release.csr \
+  --certificate /private/release.cer --profile /private/release.p7b \
+  --expected-bundle com.example.app --expected-app-id 123456789
+```
+
+Use `--verify-p12` only when a local, hidden password prompt is acceptable and P12 ↔ CSR/CER continuity must be proved. Before AppGallery issues a per-app Profile, use `--allow-identity-only`; do not interpret this as release readiness. Use `--kind debug` for a development Profile; it must be device-bound and must never substitute for a release Profile.
+5. Use `harmonyos-build` with `--artifact app --mode release --product <release-product>` to generate the candidate. Product and compiler mode are separate facts.
+6. Run preflight again with `--artifact ... --verify --expected-bundle ...`. Preserve the SHA-256 and verified Profile facts.
+7. Run project-specific privacy, metadata, screenshot, and live-readiness gates. When the app uses open capabilities, entitlements, ACL or paid services, require the `harmonyos-capabilities` ledger to reach `release_verified` or name the blocker. When it uses AI, require the `harmonyos-ai` data, credential, safety, evaluation and fallback handoff.
+8. Stop at a complete handoff unless the user explicitly asks to submit. Uploading a package, editing an AppGallery listing, or clicking submit is an external publication action and requires action-time confirmation.
 
 ## Release invariants
 
 - The final AppGallery package is a signed `.app`, not a module `.hap`.
+- A release compiler mode, release-named directory, or successful package task is not signing evidence. Candidate proof is the exact `.app` plus `hap-sign-tool` verification.
+- P12 (private key), CSR (key request), CER (issued public certificate), and `.p7b` Profile have different reuse rules: the same developer identity may be reused only after CSR/CER/P12 key continuity is checked; every release Profile must match the exact Bundle and App ID, intended distribution, certificate key, and have no debug device data. Never reuse a Profile across applications just because its certificate is reusable.
+- Keep debug automatic-signing material separate from release material. A debug Profile is device-bound; a release Profile is AppGallery-distributed and must not contain debug device information.
 - Keep `build-profile.json5`, keystores, Profiles, certificates, encrypted password material, and credentials out of version control unless project policy explicitly says otherwise.
 - Do not expose signing material paths or password values in reports.
 - Require signature/Profile verification, expected bundle, release type, distribution, artifact hash, and privacy scan before calling a candidate ready.

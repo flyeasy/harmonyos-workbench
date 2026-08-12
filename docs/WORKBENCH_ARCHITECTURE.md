@@ -23,11 +23,11 @@ It also avoids a fifth failure mode: treating every source edit as a release can
 | Platform access | `harmonyos-capabilities` | capability, entitlement, ACL and privacy ledger | AI architecture or business implementation |
 | AI | `harmonyos-ai` | AI-layer choice, data/safety/evaluation contract | console approval or general app logic |
 | Application logic | `harmonyos-develop` | ArkTS business architecture and recovery paths | visual-only design or store release |
-| Build | `harmonyos-build` | Hvigor plan, artifact and hash | install, device UX, publication |
+| Build | `harmonyos-build` | Hvigor plan, artifact/hash and build-mode/product/Profile distinction | install, device UX, publication |
 | Target control | `harmonyos-targets` | fixed device identity, lease, HDC port, geometry, local bridge | companion-board flash or physical movement |
 | Test | `harmonyos-test` | layered execution, test evidence, external integration readiness | UX verdict or store submission |
 | Review | `harmonyos-review` | evidence-based findings and acceptance verdict | redesign or bulk fixes |
-| Release | `harmonyos-release` | signed APP candidate, reproducibility and release gates | store submission without explicit user approval |
+| Release | `harmonyos-release` | signing quartet consistency, signed APP candidate, reproducibility and release gates | store submission without explicit user approval |
 
 The eleven skills intentionally remain separate. Their trigger surfaces and authority differ enough that merging them would make routing less accurate and force unrelated instructions into the same context.
 
@@ -63,6 +63,7 @@ harmonyos_workbench.py
  ├─ build             → harmony_build.py
  ├─ capability-audit  → harmony_capability_audit.py
  ├─ profile           → inspect_harmony_profile.py
+ ├─ signing-audit     → harmony_signing_audit.py
  ├─ targets           → harmonyos_targets.py
  ├─ test-plan         → harmony_test_plan.py
  ├─ integration-plan  → harmony_integration_plan.py
@@ -88,6 +89,8 @@ Only repeated, safety-sensitive operations are scripts. Product decisions, visua
 3. A project harness receives the raw runtime serial only through a short-lived local target bridge; durable evidence contains hashes, not raw identifiers.
 4. Evidence uses `harmonyos.workbench.evidence/v2`, project-relative paths, an artifact hash where relevant, and no credentials, signing material, home path, hostname or raw serial.
 5. A release handoff records a Git commit and can require a clean worktree, clean diff and a project-local durable evidence root.
+6. `buildMode`, product/signingConfig, artifact type, and embedded Profile are separate release facts. `buildMode=release` cannot promote an unsigned HAP/APP to a candidate.
+7. Release P12/CSR/CER are one signing identity only after public-key continuity is checked; a `.p7b` Profile remains app- and distribution-specific. Debug Profiles are device-bound and never stand in for release Profiles.
 
 ## External-service safety model
 
